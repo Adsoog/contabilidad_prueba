@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %} Orden Venta{% endblock %}
+{% block content %}
+
+    <h1>Ordenes de Venta</h1>
+
+    <!-- Formulario de creación -->
+    <form method="post" action="{% url 'ordenventa-crud' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Guardar</button>
+    </form>
+
+    <!-- Lista de órdenes de venta -->
+    <ul>
+        {% for orden_venta in ordenes_venta %}
+            <li>
+                {{ orden_venta.codigosap }} - {{ orden_venta.proyecto }} {{ orden_vent.observacion }}
+                (<a href="{% url 'ordenventa-crud' %}?action=edit&edit={{ orden_venta.id }}">Editar</a>)
+                (<a href="{% url 'ordenventa-crud' %}?action=delete&delete={{ orden_venta.id }}">Eliminar</a>)
+                (<a href="{% url 'procesar_orden_venta_excel' ordenventa_id=orden_venta.id %}">Crear ítem</a>
+                )
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

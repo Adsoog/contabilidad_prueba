@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chistes</title>
+</head>
+<body>
+
+<button id="chisteBtn" class="btn btn-link">Mostrar chiste</button>
+
+<p id="chiste" style="display: none;"></p>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Diccionario con las introducciones como claves y los remates como valores
+    var chistes = {
+        "¿Qué le dice un jardinero a otro jardinero?": "¡Qué plantas!",
+        "¿Qué le dice una iguana a su hermana gemela?": "¡Iguanita!",
+        // Agrega más chistes aquí según sea necesario
+    };
+
+    var mostrandoIntroduccion = true; // Variable para controlar si se está mostrando la introducción o el remate
+    var currentChiste = null; // Variable para almacenar el chiste actual
+
+    // Función para mostrar el chiste
+    function mostrarChiste() {
+        if (mostrandoIntroduccion) {
+            // Muestra la introducción del chiste
+            $('#chiste').text(Object.keys(chistes)[currentChiste]);
+        } else {
+            // Muestra el remate del chiste
+            $('#chiste').text(Object.values(chistes)[currentChiste]);
+        }
+        $('#chiste').slideToggle(); // Muestra u oculta el chiste
+        mostrandoIntroduccion = !mostrandoIntroduccion; // Cambia el estado para alternar entre la introducción y el remate
+        
+        // Retrasar la ocultación del chiste por 3 segundos (3000 milisegundos)
+        setTimeout(function() {
+            $('#chiste').slideToggle();
+        }, 3000);
+    }
+
+    // Manejador de evento para el botón de chiste
+    $('#chisteBtn').click(function() {
+        if (currentChiste === null) {
+            // Selecciona un chiste aleatorio la primera vez que se haga clic en el botón
+            currentChiste = Math.floor(Math.random() * Object.keys(chistes).length);
+        }
+        mostrarChiste(); // Llama a la función para mostrar el chiste
+    });
+});
+</script>
+
+</body>
+</html>
