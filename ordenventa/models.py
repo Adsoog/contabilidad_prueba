@@ -22,6 +22,7 @@ class ItemOrdenVenta(models.Model):
     cantidad = models.IntegerField(null=True, default=0)
     precio_bruto = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     total_bruto = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    enviado = models.BooleanField(default=False) 
 
     def __str__(self):
         return f"{self.nro_articulo} - {self.ordenventa}"

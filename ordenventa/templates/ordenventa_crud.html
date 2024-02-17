@@ -15,11 +15,12 @@
     <ul>
         {% for orden_venta in ordenes_venta %}
             <li>
-                {{ orden_venta.codigosap }} - {{ orden_venta.proyecto }} {{ orden_vent.observacion }}
+                {{ orden_venta.codigosap }} - {{ orden_venta.proyecto }} - {{ orden_vent.observacion }} 
                 (<a href="{% url 'ordenventa-crud' %}?action=edit&edit={{ orden_venta.id }}">Editar</a>)
                 (<a href="{% url 'ordenventa-crud' %}?action=delete&delete={{ orden_venta.id }}">Eliminar</a>)
-                (<a href="{% url 'procesar_orden_venta_excel' ordenventa_id=orden_venta.id %}">Crear ítem</a>
-                )
+                (<a href="{% url 'procesar_orden_venta_excel' ordenventa_id=orden_venta.id %}">Crear ítem</a>)
+                (<a href="{% url 'ver_items_orden_venta' ordenventa_id=orden_venta.id %}">Orden de Compra</a>)
+
             </li>
         {% endfor %}
     </ul>

@@ -58,7 +58,8 @@ class OrdenVentaCRUDView(View):
                 self.template_name,
                 {"ordenes_venta": ordenes_venta, "form": form},
             )
-
+        
+# FUNCION PARA PROCESAR EL EXCEL 
 def procesar_orden_venta_excel(request, ordenventa_id):
     if request.method == "POST":
         form = OrdenVentaUploadForm(request.POST, request.FILES)
@@ -86,57 +87,33 @@ def procesar_orden_venta_excel(request, ordenventa_id):
 
     return render(request, "formulario_orden_venta.html", {"form": form})
 
+#VER LOS ITEMS SEGUN ID
+def ver_items_orden_venta(request, ordenventa_id):
+    ordenventa = get_object_or_404(OrdenVenta, pk=ordenventa_id)
+    items = ItemOrdenVenta.objects.filter(ordenventa=ordenventa)
+    
+    return render(request, 'ver_items_orden_venta.html', {'ordenventa': ordenventa, 'items': items})
 
 
+# REDIRIGIR LOS ITEMS
+def procesar_seleccion(request, ordenventa_id):
+    ordenventa = get_object_or_404(OrdenVenta, pk=ordenventa_id)
 
+    if request.method == 'POST':
+        selected_items = request.POST.getlist('selected_items')
+        action = request.POST.get('action')  # Nueva línea para obtener la acción deseada
+        
+        # Realizar acciones según la opción seleccionada
+        if action == 'eliminar':
+            # Eliminar los elementos seleccionados
+            ItemOrdenVenta.objects.filter(id__in=selected_items).delete()
+        elif action == 'marcar_enviado':
+            # Marcar los elementos seleccionados como enviados (por ejemplo, actualizando un campo en el modelo)
+            ItemOrdenVenta.objects.filter(id__in=selected_items).update(enviado=True)
+        # Agrega más opciones según sea necesario
 
-def agregar_item_orden_venta(request, ordenventa_id):
-    # Obtén la instancia de OrdenVenta
-    orden_venta = OrdenVenta.objects.get(pk=ordenventa_id)
-
-    if request.method == "POST":
-        form = ItemOrdenVentaForm(request.POST)
-        if form.is_valid():
-            form.save(commit=False)
-
-            # Procesar archivo Excel
-            if "archivo_excel" in request.FILES:
-                archivo_excel = request.FILES["archivo_excel"]
-                procesar_datos_desde_excel(archivo_excel, orden_venta)
-
-            # Continuar con el procesamiento del formulario y la redirección
-            form.save()
-
-            # Puedes redirigir a otra página o hacer lo que necesites después de guardar
-            return redirect("nombre_de_la_vista")
-    else:
-        form = ItemOrdenVentaForm()
-
-    return render(
-        request, "tu_template.html", {"form": form, "orden_venta": orden_venta}
-    )
-
-
-def procesar_datos_desde_excel(archivo_excel, orden_venta):
-    # Abre el archivo Excel
-    wb = openpyxl.load_workbook(archivo_excel)
-    sheet = wb.active
-
-    # Itera sobre las filas del archivo Excel (empezando desde la segunda fila, suponiendo que la primera fila es encabezado)
-    for row in sheet.iter_rows(min_row=2, values_only=True):
-        # Crea una instancia de ItemOrdenVenta con los datos de la fila
-        item_orden_venta = ItemOrdenVenta(
-            ordenventa=orden_venta,
-            nro_articulo=row[0],
-            cantidad=row[1],
-            precio_bruto=row[2],
-            total_bruto=row[3],
-        )
-
-        # Guarda el nuevo item en la base de datos
-        item_orden_venta.save()
-
-
+    # Redirige a la página de visualización después de procesar la selección
+    return redirect('ver_items_orden_venta', ordenventa_id=ordenventa.id)
 
 
 # desde aqui no hay nada interesante :P
