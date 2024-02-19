@@ -22,7 +22,7 @@ SECRET_KEY = "django-insecure-*w7wej*(c@lneignsb4wz)&*bt=o3fsqewy+(4#^1vigm#-z9*
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
@@ -124,10 +124,7 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Configuración para django-cors-headers
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8000",  # Reemplaza con la URL de tu frontend
-    "https://tudominio.com",
-]
+CORS_ALLOWED_ORIGINS = []
 
 # Configuración adicional según tus necesidades
 CORS_ALLOW_METHODS = [

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}JP Sistema Contable{% endblock %}</title>
-    <link rel="stylesheet" type="text/css" href="https://bootswatch.com/5/quartz/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://bootswatch.com/5/morph/bootstrap.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -67,12 +67,11 @@
         <h2>JP Sistema Contable</h2>
         <ul>
             <li><a href="/" data-theme="theme5"><i class="fas fa-ellipsis-h"></i>Home</a></li>
-            <li><a href="/ordenventa" data-theme="theme1"><i class="fas fa-file-invoice"></i> OrdenVenta</a></li>
+            <li><a href="/ordenventa" data-theme="theme1"><i class="fas fa-file-invoice"></i> Venta</a></li>
             <li><a href="/ordencompra" data-theme="theme2"><i class="fas fa-shopping-cart"></i> OrdenCompra</a></li>
             <li><a href="/inventario" data-theme="theme3"><i class="fas fa-money-bill-wave"></i> Pagos</a></li>
             <li><a href="/ordenventa/ordenesventa" data-theme="theme4"><i class="fas fa-boxes"></i> Inventario</a></li>
-
-            <li><a href="{% url 'ordenventa-crud' %}" data-theme="theme1"><i class="fas fa-file-invoice"></i> OrdenVenta</a></li>
+            <li><a href="/inventario/inventario" data-theme="theme3"><i class="fas fa-money-bill-wave"></i>Inventario</a>
         </ul>
     </div>
 

@@ -21,7 +21,8 @@ from django.urls import path, include
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("ordenventa/", include('ordenventa.urls')),  # Incluye las URLs de ordenventa
-    path("ordencompra/", include('ordencompra.urls')),  # Incluye las URLs de ordencompra
+    path("ordencompra/", include('ordencompra.urls')), 
+    path("inventario/", include('inventario.urls')), # Incluye las URLs de ordencompra
     path("list/", include('app.urls')),
     path("",include('home.urls')),
 ]

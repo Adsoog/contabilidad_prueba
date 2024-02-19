@@ -26,6 +26,11 @@ urlpatterns = [
         DetalleItemOrdenVenta.as_view(),
         name="detalle_itemordenventa",
     ),
+
+
+    # A partir de aqui recien las funcionalidades
+
+
     path("", OrdenVentaCRUDView.as_view(), name="ordenventa-crud"),
     path("cargar-orden-venta/", procesar_orden_venta_excel, name="cargar_orden_venta"),
     path(
@@ -38,11 +43,6 @@ urlpatterns = [
         "ver_items_orden_venta/<int:ordenventa_id>/",
         ver_items_orden_venta,
         name="ver_items_orden_venta",
-    ),
-    path(
-        "ver_items_enviados_orden_venta/<int:ordenventa_id>/",
-        ver_items_enviados_orden_venta,
-        name="ver_items_enviados_orden_venta",
     ),
     path(
         "procesar_seleccion/<int:ordenventa_id>/",

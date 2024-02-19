@@ -1,13 +1,66 @@
-{% extends 'base.html' %}
-{% block title %} Home{% endblock %}
-{% block content %}
-
-
-
-
-
-<h1 style="color: black;"></h1>
-
-
-
-{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JP Ingeniería Sistema Contable</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://bootswatch.com/5/morph/bootstrap.min.css">
+    <style>
+        .jumbotron {
+            background-color: #343a40;
+            color: #fff;
+            padding: 40px;
+        }
+        .card-custom {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <ol class="breadcrumb mt-5">
+            <li class="breadcrumb-item active">JP Ingeniería Sistema Contable</li>
+        </ol>
+        <div class="row text-center">
+            <div class="col-lg-6 col-md-6 mb-4">
+                <div class="card text-white bg-primary card-custom">
+                    <div class="card-header">Ventas</div>
+                    <div class="card-body">
+                        <h4 class="card-title">Primary card title</h4>
+                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 mb-4">
+                <div class="card bg-secondary card-custom">
+                    <div class="card-header">Compras</div>
+                    <div class="card-body">
+                        <h4 class="card-title">Secondary card title</h4>
+                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 mb-4">
+                <div class="card text-white bg-success card-custom">
+                    <div class="card-header">Inventario</div>
+                    <div class="card-body">
+                        <h4 class="card-title">Success card title</h4>
+                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 mb-4">
+                <div class="card text-white bg-danger card-custom">
+                    <div class="card-header">Reportes</div>
+                    <div class="card-body">
+                        <h4 class="card-title">Danger card title</h4>
+                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
