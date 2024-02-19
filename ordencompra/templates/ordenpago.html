@@ -1,0 +1,31 @@
+<!-- ordenpago.html -->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listado de Órdenes de Pago</title>
+</head>
+<body>
+
+<h1>Listado de Órdenes de Pago</h1>
+
+<table border="1">
+    <thead>
+        <!-- ... (código de la tabla) ... -->
+    </thead>
+    <tbody>
+        <!-- ... (código de la tabla) ... -->
+    </tbody>
+</table>
+
+<!-- Mostrar el formulario -->
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Guardar Orden de Pago</button>
+</form>
+
+</body>
+</html>

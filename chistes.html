@@ -1,57 +1,141 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chistes</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla de Precios</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        select {
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
 
-<button id="chisteBtn" class="btn btn-link">Mostrar chiste</button>
+    <h2>Orden de</h2>
 
-<p id="chiste" style="display: none;"></p>
+    <table id="tablaPrecios">
+        <thead>
+            <tr>
+                <th>Descripción</th>
+                <th>Precio</th>
+                <th>Cantidad</th>
+                <th>IGV (%)</th>
+                <th>Detracción (%)</th>
+                <th>Precio Total</th>
+                <th>Proveedor</th>
+                <th>Banco</th>
+                <th>Número Bancario</th>
+                <th>Cuotas</th>
+                <th>Tipo de Pago</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- No hay filas predefinidas -->
+        </tbody>
+    </table>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-$(document).ready(function() {
-    // Diccionario con las introducciones como claves y los remates como valores
-    var chistes = {
-        "¿Qué le dice un jardinero a otro jardinero?": "¡Qué plantas!",
-        "¿Qué le dice una iguana a su hermana gemela?": "¡Iguanita!",
-        // Agrega más chistes aquí según sea necesario
-    };
+    <button onclick="agregarFila()">Agregar Fila</button>
 
-    var mostrandoIntroduccion = true; // Variable para controlar si se está mostrando la introducción o el remate
-    var currentChiste = null; // Variable para almacenar el chiste actual
+    <script>
+        // Función para calcular el precio total
+        function calcularPrecioTotal() {
+            var filas = document.querySelectorAll("#tablaPrecios tbody tr");
 
-    // Función para mostrar el chiste
-    function mostrarChiste() {
-        if (mostrandoIntroduccion) {
-            // Muestra la introducción del chiste
-            $('#chiste').text(Object.keys(chistes)[currentChiste]);
-        } else {
-            // Muestra el remate del chiste
-            $('#chiste').text(Object.values(chistes)[currentChiste]);
+            filas.forEach(function (fila) {
+                var precio = parseFloat(fila.cells[1].innerText);
+                var cantidad = parseFloat(fila.cells[2].innerText);
+                var precioTotal = precio * cantidad;
+
+                // Obtener valores de IGV, detracción, cuotas y tipo de pago
+                var igv = parseFloat(fila.cells[3].innerText) || 0;
+                var detraccion = parseFloat(fila.cells[4].innerText) || 0;
+                var cuotas = parseFloat(fila.cells[9].innerText) || 0;
+                var tipoPago = fila.cells[10].innerText;
+
+                // Calcular precio total con IGV y detracción
+                precioTotal = precioTotal + (precioTotal * igv / 100);
+                precioTotal = precioTotal - (precioTotal * detraccion / 100);
+
+                fila.cells[5].innerText = precioTotal.toFixed(2) + ' ' + tipoPago;
+            });
         }
-        $('#chiste').slideToggle(); // Muestra u oculta el chiste
-        mostrandoIntroduccion = !mostrandoIntroduccion; // Cambia el estado para alternar entre la introducción y el remate
-        
-        // Retrasar la ocultación del chiste por 3 segundos (3000 milisegundos)
-        setTimeout(function() {
-            $('#chiste').slideToggle();
-        }, 3000);
-    }
 
-    // Manejador de evento para el botón de chiste
-    $('#chisteBtn').click(function() {
-        if (currentChiste === null) {
-            // Selecciona un chiste aleatorio la primera vez que se haga clic en el botón
-            currentChiste = Math.floor(Math.random() * Object.keys(chistes).length);
+        // Función para actualizar el banco y número bancario al seleccionar un proveedor
+        function actualizarInfoProveedor(proveedor) {
+            var proveedoresInfo = {
+                "Pepsi": { banco: "Banco A", numero: "123456789" },
+                "CocaCola": { banco: "Banco B", numero: "987654321" },
+                // Puedes agregar más proveedores con su información asociada
+            };
+
+            var fila = proveedor.closest("tr");
+            fila.cells[7].innerText = proveedoresInfo[proveedor.value]?.banco || "";
+            fila.cells[8].innerText = proveedoresInfo[proveedor.value]?.numero || "";
         }
-        mostrarChiste(); // Llama a la función para mostrar el chiste
-    });
-});
-</script>
+
+        // Agregar evento de cambio al seleccionar un proveedor
+        var proveedores = document.querySelectorAll(".proveedor");
+        proveedores.forEach(function (proveedor) {
+            proveedor.addEventListener("change", function () {
+                actualizarInfoProveedor(proveedor);
+            });
+        });
+
+        // Agregar evento de input a las celdas editables
+        var celdasEditables = document.querySelectorAll("#tablaPrecios [contenteditable='true']");
+        celdasEditables.forEach(function (celda) {
+            celda.addEventListener("input", calcularPrecioTotal);
+        });
+
+        var celdaPrecioTotal = document.querySelectorAll("#tablaPrecios tbody td:nth-child(6)");
+        celdaPrecioTotal.forEach(function (celda) {
+            celda.addEventListener("input", calcularPrecioTotal);
+        });
+
+        // Función para agregar nueva fila
+        function agregarFila() {
+            var tbody = document.querySelector("#tablaPrecios tbody");
+
+            var newRow = tbody.insertRow();
+            newRow.innerHTML = `
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+                <td></td>
+                <td>
+                    <select class="proveedor" onchange="actualizarInfoProveedor(this)">
+                        <option value=""></option>
+                        <option value="Pepsi">Pepsi</option>
+                        <option value="CocaCola">CocaCola</option>
+                        <!-- Puedes agregar más proveedores aquí -->
+                    </select>
+                </td>
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+            `;
+        }
+
+    </script>
 
 </body>
 </html>

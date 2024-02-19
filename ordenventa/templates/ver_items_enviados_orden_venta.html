@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ver Items Enviados Orden Venta</title>
+</head>
+<body>
+
+<h1>Detalles de la Orden de Venta</h1>
+<p>Orden de Venta ID: {{ ordenventa.id }}</p>
+
+<h2>Items Enviados</h2>
+<table border="1">
+    <thead>
+        <tr>
+            <th>Descripción del Artículo</th>
+            <th>Cantidad</th>
+            <th>Precio Bruto</th>
+            <th>Total Bruto</th>
+        </tr>
+    </thead>
+    <tbody id="itemsTableBody">
+        <!-- Los datos se cargarán aquí con JavaScript -->
+    </tbody>
+</table>
+
+<!-- ... tu código HTML anterior ... -->
+
+<script>
+  // Obtén la respuesta JSON de la vista y actualiza la tabla
+  const xhr = new XMLHttpRequest();
+  const ordenventa_id = {{ ordenventa.id }};  // Asegúrate de obtener el ID de la ordenventa correctamente
+  const url = "{% url 'ver_items_enviados_orden_venta' 0 %}".replace("0", ordenventa_id);
+  xhr.open("GET", url, true);
+  xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+          const data = JSON.parse(xhr.responseText);
+          const tableBody = document.getElementById("itemsTableBody");
+
+          data.forEach(item => {
+              const row = document.createElement("tr");
+              row.innerHTML = `
+                  <td>${item.desc_articulo}</td>
+                  <td>${item.cantidad}</td>
+                  <td>${item.precio_bruto}</td>
+                  <td>${item.total_bruto}</td>
+              `;
+              tableBody.appendChild(row);
+          });
+      }
+  };
+  xhr.send();
+</script>
+
+<!-- ... tu código HTML posterior ... -->
+
+
+</body>
+</html>

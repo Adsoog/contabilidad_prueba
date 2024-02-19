@@ -18,11 +18,12 @@ class ItemOrdenVenta(models.Model):
     ordenventa = models.ForeignKey(
         OrdenVenta, related_name="items", on_delete=models.CASCADE
     )
-    nro_articulo = models.CharField(max_length=50, null=True, default='')
+    nro_articulo = models.CharField(max_length=50, null=True, default="")
+    desc_articulo = models.CharField(max_length=50, null=True, default="")
     cantidad = models.IntegerField(null=True, default=0)
     precio_bruto = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     total_bruto = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    enviado = models.BooleanField(default=False) 
+    enviado = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.nro_articulo} - {self.ordenventa}"

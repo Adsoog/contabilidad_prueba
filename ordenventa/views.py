@@ -7,10 +7,6 @@ from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect, JsonResponse
 from .forms import ItemOrdenVentaForm, OrdenVentaForm, OrdenVentaUploadForm
 from openpyxl import load_workbook
-import openpyxl
-
-
-
 
 
 class OrdenVentaCRUDView(View):
@@ -58,8 +54,9 @@ class OrdenVentaCRUDView(View):
                 self.template_name,
                 {"ordenes_venta": ordenes_venta, "form": form},
             )
-        
-# FUNCION PARA PROCESAR EL EXCEL 
+
+
+# FUNCION PARA PROCESAR EL EXCEL
 def procesar_orden_venta_excel(request, ordenventa_id):
     if request.method == "POST":
         form = OrdenVentaUploadForm(request.POST, request.FILES)
@@ -76,47 +73,86 @@ def procesar_orden_venta_excel(request, ordenventa_id):
                 ItemOrdenVenta.objects.create(
                     ordenventa_id=ordenventa_id,
                     nro_articulo=row[0],
+                    desc_articulo=row[1],
                     cantidad=row[2],
                     precio_bruto=row[6],
-                    total_bruto=row[12]
+                    total_bruto=row[12],
                 )
 
-            return redirect("ordenventa-crud")  # Redirige a la vista correspondiente
+            return redirect(
+                "ver_items_orden_venta", ordenventa_id=ordenventa_id
+            )  # Redirige a la vista correspondiente
     else:
         form = OrdenVentaUploadForm()
 
     return render(request, "formulario_orden_venta.html", {"form": form})
 
-#VER LOS ITEMS SEGUN ID
+
+# VER LOS ITEMS SEGUN ID
 def ver_items_orden_venta(request, ordenventa_id):
     ordenventa = get_object_or_404(OrdenVenta, pk=ordenventa_id)
     items = ItemOrdenVenta.objects.filter(ordenventa=ordenventa)
-    
-    return render(request, 'ver_items_orden_venta.html', {'ordenventa': ordenventa, 'items': items})
+
+    return render(
+        request,
+        "ver_items_orden_venta.html",
+        {"ordenventa": ordenventa, "items": items},
+    )
+
+
+# VER LOS ITEMS SEGUN ENVIADOS Y LUEGO PROCESAR CON DEMS FUNCIONES
+from django.http import JsonResponse
+
+
+def ver_items_enviados_orden_venta(request, ordenventa_id):
+    ordenventa = get_object_or_404(OrdenVenta, pk=ordenventa_id)
+    items_enviados = ItemOrdenVenta.objects.filter(ordenventa=ordenventa, enviado=True)
+
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        data = []
+        for item in items_enviados:
+            data.append(
+                {
+                    "desc_articulo": item.desc_articulo,
+                    "cantidad": item.cantidad,
+                    "precio_bruto": item.precio_bruto,
+                    "total_bruto": item.total_bruto,
+                }
+            )
+        return JsonResponse(data, safe=False)
+
+    return render(
+        request,
+        "ver_items_enviados_orden_venta.html",
+        {"ordenventa": ordenventa, "items_enviados": items_enviados},
+    )
 
 
 # REDIRIGIR LOS ITEMS
 def procesar_seleccion(request, ordenventa_id):
-    ordenventa = get_object_or_404(OrdenVenta, pk=ordenventa_id)
+    if request.method == "POST":
+        selected_items = request.POST.getlist("selected_items")
+        action = request.POST.get("action")
 
-    if request.method == 'POST':
-        selected_items = request.POST.getlist('selected_items')
-        action = request.POST.get('action')  # Nueva línea para obtener la acción deseada
-        
-        # Realizar acciones según la opción seleccionada
-        if action == 'eliminar':
-            # Eliminar los elementos seleccionados
+        # Lógica para procesar la selección según la acción
+        if action == "eliminar":
+            # Código para eliminar los items seleccionados
             ItemOrdenVenta.objects.filter(id__in=selected_items).delete()
-        elif action == 'marcar_enviado':
-            # Marcar los elementos seleccionados como enviados (por ejemplo, actualizando un campo en el modelo)
+        elif action == "marcar_enviado":
+            # Código para marcar como enviado los items seleccionados
             ItemOrdenVenta.objects.filter(id__in=selected_items).update(enviado=True)
-        # Agrega más opciones según sea necesario
 
-    # Redirige a la página de visualización después de procesar la selección
-    return redirect('ver_items_orden_venta', ordenventa_id=ordenventa.id)
+        # Lógica para redirigir a la vista correcta después de procesar la selección
+        if action == "eliminar":
+            return redirect("ver_items_orden_venta", ordenventa_id=ordenventa_id)
+        elif action == "marcar_enviado":
+            return redirect(
+                "ver_items_enviados_orden_venta", ordenventa_id=ordenventa_id
+            )
 
 
 # desde aqui no hay nada interesante :P
+
 
 # Vistas para OrdenVenta
 class ListaOrdenesVenta(generics.ListCreateAPIView):

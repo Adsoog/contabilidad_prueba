@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla de Precios</title>
+</head>
+<body>
+
+<table border="1" id="tablaPrecios">
+    <thead>
+        <tr>
+            <th>Descripción</th>
+            <th>Precio</th>
+            <th>Cantidad</th>
+            <th>IGV (%)</th>
+            <th>Detracción (%)</th>
+            <th>Precio Total</th>
+            <th>Tipo de Pago</th>
+            <th>Clase</th>
+            <th>Banco</th>
+            <th>Número Bancario</th>
+            <th>Cuotas</th>
+        </tr>
+
+    </thead>
+    <tbody></tbody>
+
+</table>
+
+<button onclick="agregarFila()">Agregar Fila</button>
+<button onclick="guardarDatos()">Guardar Datos</button>
+
+<script>
+    // Función para calcular el precio total automáticamente
+    function actualizarPrecioTotal(fila) {
+        var precio = parseFloat(fila.children[1].innerText);
+        var cantidad = parseFloat(fila.children[2].innerText);
+        var igv = parseFloat(fila.children[3].innerText);
+        var detraction = parseFloat(fila.children[4].innerText);
+
+        // Verificar si los valores son numéricos
+        if (isNaN(precio) || isNaN(cantidad) || isNaN(igv) || isNaN(detraction)) {
+            fila.children[5].innerText = '';
+            return;
+        }
+
+        var precioTotal = (precio * cantidad) * (1 + igv / 100) * (1 - detraction / 100);
+        fila.children[5].innerText = precioTotal.toFixed(2);
+    }
+
+    // Función para agregar una nueva fila a la tabla
+    function agregarFila() {
+        var tabla = document.getElementById('tablaPrecios');
+        var nuevaFila = tabla.insertRow(-1);
+
+        // Añadir celdas a la nueva fila
+        for (var i = 0; i < 11; i++) {
+            var celda = nuevaFila.insertCell(i);
+            if (i === 6) {
+                // Agregar lista desplegable para Tipo de Pago
+                var listaDesplegableTipoPago = document.createElement('select');
+                listaDesplegableTipoPago.innerHTML = '<option value="Planillas">Planillas</option>' +
+                                            '<option value="Proveedores">Proveedores</option>' +
+                                            '<option value="Bancos y Tarjetas">Bancos y Tarjetas</option>' +
+                                            '<option value="Sunat">Sunat</option>' +
+                                            '<option value="Bien o Servicio">Bien o Servicio</option>';
+                celda.appendChild(listaDesplegableTipoPago);
+            } else if (i === 7) {
+                // Agregar lista desplegable para Clase
+                var listaDesplegableClase = document.createElement('select');
+                listaDesplegableClase.innerHTML = '<option value="Pepsi">Pepsi</option>' +
+                                            '<option value="CocaCola">CocaCola</option>';
+                // Agregar evento de cambio a la lista de Clase
+                listaDesplegableClase.addEventListener('change', function() {
+                    if (this.value === 'Pepsi') {
+                        // Rellenar automáticamente el Banco y Número Bancario para Pepsi
+                        nuevaFila.children[8].innerText = 'Banco Pepsi';
+                        nuevaFila.children[9].innerText = '123456789';
+                    } else if (this.value === 'CocaCola') {
+                        // Rellenar automáticamente el Banco y Número Bancario para CocaCola
+                        nuevaFila.children[8].innerText = 'Banco CocaCola';
+                        nuevaFila.children[9].innerText = '987654321';
+                    }
+                });
+                celda.appendChild(listaDesplegableClase);
+            } else if (i === 10) {
+                // Establecer el campo de Cuotas como editable
+                celda.contentEditable = "true";
+            } else {
+                celda.contentEditable = "true";
+            }
+        }
+
+        // Actualizar el precio total cuando se editan los campos
+        nuevaFila.addEventListener('input', function(e) {
+            if (e.target.tagName.toLowerCase() === 'td' && e.target.contentEditable === 'true') {
+                // Validar que Cuotas sea un número
+                if (e.target === nuevaFila.children[10]) {
+                    var cuotas = parseFloat(e.target.innerText);
+                    if (isNaN(cuotas)) {
+                        e.target.innerText = '';
+                        return;
+                    }
+                }
+                actualizarPrecioTotal(nuevaFila);
+            }
+        });
+    }
+</script>
+</body>
+</html>

@@ -5,7 +5,7 @@
     <title>Ver Items de Orden de Venta</title>
 </head>
 <body>
-    <h1>Items de la Orden de Venta {{ ordenventa }}</h1>
+    <h1>Items de la Orden de Venta {{ ordenventa }}  </h1>
     
     <form method="post" action="{% url 'procesar_seleccion' ordenventa_id=ordenventa.id %}">
         {% csrf_token %}
@@ -15,14 +15,18 @@
         <select name="action">
             <option value="eliminar">Eliminar</option>
             <option value="marcar_enviado">Marcar como Enviado</option>
+            
             <!-- Agrega más opciones según sea necesario -->
         </select>
+                
+        <button type="submit">Procesar Selección</button>
 
         <table>
             <thead>
                 <tr>
                     <th>Seleccionar</th>
                     <th>Número de Artículo</th>
+                    <th>Desc de Artículo</th>
                     <th>Cantidad</th>
                     <th>Precio Bruto</th>
                     <th>Total Bruto</th>
@@ -34,6 +38,7 @@
                         <tr>
                             <td><input type="checkbox" name="selected_items" value="{{ item.id }}"></td>
                             <td>{{ item.nro_articulo }}</td>
+                            <td>{{ item.desc_articulo }}</td>
                             <td>{{ item.cantidad }}</td>
                             <td>{{ item.precio_bruto }}</td>
                             <td>{{ item.total_bruto }}</td>
@@ -42,8 +47,7 @@
                 {% endfor %}
             </tbody>
         </table>
-        
-        <button type="submit">Procesar Selección</button>
+
 
     </form>
 </body>
