@@ -23,6 +23,7 @@ urlpatterns = [
     path("ordenventa/", include('ordenventa.urls')),  # Incluye las URLs de ordenventa
     path("ordencompra/", include('ordencompra.urls')), 
     path("inventario/", include('inventario.urls')), # Incluye las URLs de ordencompra
+    path("reportes/", include('reportes.urls')),
     path("list/", include('app.urls')),
     path("",include('home.urls')),
 ]

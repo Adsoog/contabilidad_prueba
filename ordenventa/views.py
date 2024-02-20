@@ -1,4 +1,6 @@
 from rest_framework import generics
+
+from inventario.models import Inventario
 from .models import OrdenVenta, ItemOrdenVenta
 from .serializers import OrdenVentaSerializer, ItemOrdenVentaSerializer
 from django.shortcuts import redirect, render, get_object_or_404
@@ -98,6 +100,24 @@ def ver_items_orden_venta(request, ordenventa_id):
         "ver_items_orden_venta.html",
         {"ordenventa": ordenventa, "items": items},
     )
+
+def ver_items_orden_venta2(request, ordenventa_id):
+    ordenventa = get_object_or_404(OrdenVenta, pk=ordenventa_id)
+    items = ItemOrdenVenta.objects.filter(ordenventa=ordenventa)
+
+    # Obtener los nro_articulo de los items de la orden de venta
+    nros_articulos = [item.nro_articulo for item in items]
+
+    # Filtrar los registros de Inventario que coinciden con los nro_articulo de los items
+    inventario = Inventario.objects.filter(num_articulo__in=nros_articulos)
+
+    return render(
+        request,
+        "ver_items_orden_venta2.html",
+        {"ordenventa": ordenventa, "items": items, "inventario": inventario},
+    )
+
+
 
 
 # VER LOS ITEMS SEGUN ENVIADOS Y LUEGO PROCESAR CON DEMS FUNCIONES

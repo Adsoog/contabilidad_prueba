@@ -11,6 +11,10 @@
         <h1 class="mt-5">Inventario</h1>
         <a href="{% url 'procesar_excel' %}" class="btn btn-primary mt-3">Cargar archivo Excel</a>
         <a href="{% url 'agregar_item_inventario' %}" class="btn btn-primary mt-3">Cargar nuevo item</a>
+        <form method="post" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger mt-3" name="eliminar_todo" onclick="return confirm('¿Estás seguro de que deseas eliminar todos los archivos?');">Eliminar todos los archivos</button>
+        </form>
         <div class="table-responsive mt-4">
             <table class="table table-hover">
                 <thead class="table-dark">

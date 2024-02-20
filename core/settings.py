@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "ordenventa",
     "app",
     "home",
+    'reportes',
     "corsheaders",  # Añade django-cors-headers aquí
 ]
 

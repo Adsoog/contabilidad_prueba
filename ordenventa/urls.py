@@ -9,6 +9,7 @@ from .views import (
     ver_items_orden_venta,
     procesar_seleccion,
     ver_items_enviados_orden_venta,
+    ver_items_orden_venta2,
 )
 
 urlpatterns = [
@@ -44,6 +45,14 @@ urlpatterns = [
         ver_items_orden_venta,
         name="ver_items_orden_venta",
     ),
+    path(
+        "ver_items_orden_venta2/<int:ordenventa_id>/",
+        ver_items_orden_venta2,
+        name="ver_items_orden_venta2",
+    ),
+
+
+
     path(
         "procesar_seleccion/<int:ordenventa_id>/",
         procesar_seleccion,

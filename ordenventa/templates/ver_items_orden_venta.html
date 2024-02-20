@@ -1,21 +1,23 @@
-<!-- ver_items_orden_venta.html -->
 <!DOCTYPE html>
 <html>
 <head>
     <title>Ver Items de Orden de Venta</title>
 </head>
 <body>
-    <h1>Items de la Orden de Venta {{ ordenventa }}  </h1>
+    <h1>Items de la Orden de Venta {{ ordenventa }}</h1>
+    <form method="get" action="{% url 'ver_items_orden_venta2' ordenventa_id=ordenventa.id %}">
+        <button type="submit">STOCK</button>
     
     <form method="post" action="{% url 'procesar_seleccion' ordenventa_id=ordenventa.id %}">
         {% csrf_token %}
         
-        <!-- Cambiado a un campo de selección para la acción -->
+        <!-- Campo de selección para la acción -->
+   
+        </form>
         <label for="action">Selecciona una acción:</label>
         <select name="action">
             <option value="eliminar">Eliminar</option>
             <option value="marcar_enviado">Marcar como Enviado</option>
-            
             <!-- Agrega más opciones según sea necesario -->
         </select>
                 
@@ -47,8 +49,8 @@
                 {% endfor %}
             </tbody>
         </table>
-
-
     </form>
+
+    <!-- Botón para ir a ver_items_orden_venta2 -->
 </body>
 </html>

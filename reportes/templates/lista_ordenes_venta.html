@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Órdenes de Venta</title>
+</head>
+<body>
+    <h1>Lista de Órdenes de Venta</h1>
+
+    <ul>
+        {% for orden_venta in ordenes_venta %}
+            <li><a href="{% url 'reporte_precio_bruto_total' orden_venta.id %}">{{ orden_venta }}</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

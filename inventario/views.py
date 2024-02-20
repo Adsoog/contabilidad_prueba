@@ -1,5 +1,5 @@
 import openpyxl 
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 
 from inventario.forms import InventarioForm, UploadExcelForm
 from .models import Inventario
@@ -10,6 +10,12 @@ import re
 
 def inventario(request):
     inventario = Inventario.objects.all()
+    
+    if request.method == 'POST' and 'eliminar_todo' in request.POST:
+        # Eliminar todos los archivos del inventario
+        Inventario.objects.all().delete()
+        return redirect('inventario')  # Redirigir a la misma página después de la eliminación
+    
     return render(request, 'inventario.html', {'inventario': inventario})
 class AgregarItemInventario(FormView):
     template_name = 'agregar_item_inventario.html'
@@ -66,7 +72,7 @@ def procesar_excel(request):
                     ultimo_precio_compra=ultimo_precio_compra
                 )
 
-            return render(request, 'inventario.html')
+            return redirect('inventario')   
     else:
         form = UploadExcelForm()
 
