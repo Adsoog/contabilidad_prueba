@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}JP Sistema Contable{% endblock %}</title>
+    <!-- Añade la referencia a Bootstrap -->
     <link rel="stylesheet" type="text/css" href="https://bootswatch.com/5/morph/bootstrap.min.css">
+    <!-- Añade la referencia a Font Awesome para los íconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -66,12 +69,12 @@
     <div class="sidebar">
         <h2>JP Sistema Contable</h2>
         <ul>
-            <li><a href="/" data-theme="theme5"><i class="fas fa-ellipsis-h"></i>Home</a></li>
             <li><a href="/ordenventa" data-theme="theme1"><i class="fas fa-file-invoice"></i> Venta</a></li>
-            <li><a href="/ordencompra" data-theme="theme2"><i class="fas fa-shopping-cart"></i> OrdenCompra</a></li>
+            <li><a href="/ordencompra" data-theme="theme2"><i class="fas fa-shopping-cart"></i> Compras y pagos</a></li>
+            <li><a href="/inventario/inventario" data-theme="theme3"><i class="fas fa-money-bill-wave"></i> Inventario</a></li>
+            <li><a href="/inventario/inventario" data-theme="theme3"><i class="fas fa-money-bill-wave"></i> Reportes</a></li>
             <li><a href="/inventario" data-theme="theme3"><i class="fas fa-money-bill-wave"></i> Pagos</a></li>
-            <li><a href="/ordenventa/ordenesventa" data-theme="theme4"><i class="fas fa-boxes"></i> Inventario</a></li>
-            <li><a href="/inventario/inventario" data-theme="theme3"><i class="fas fa-money-bill-wave"></i>Inventario</a>
+            <li><a href="/ordenventa/ordenesventa" data-theme="theme4"><i class="fas fa-boxes"></i> Borrar</a></li>
         </ul>
     </div>
 
