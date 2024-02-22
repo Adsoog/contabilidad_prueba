@@ -6,12 +6,12 @@ from django.db import models
 class OrdenVenta(models.Model):
     codigosap = models.CharField(max_length=50)
     proyecto = models.CharField(max_length=255)
-    direccion_proyecto = models.TextField()
-    observacion = models.TextField()
+    direccion_proyecto = models.CharField(max_length=255)
+    observacion = models.CharField(max_length=255)
     fecha = models.DateField()
 
     def __str__(self):
-        return f"{self.codigosap} - {self.proyecto}"
+        return f"{self.codigosap} - {self.proyecto} - {self.direccion_proyecto}"
 
 
 class ItemOrdenVenta(models.Model):

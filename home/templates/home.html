@@ -47,12 +47,16 @@
                     <h1 class="display-5">Compras</h1>
                     <p class="lead">Descripción o contenido relacionado con Compras.</p>
                 </div>
-                <div class="jumbotron" onclick="window.location.href='/inventario';">
+                <div class="jumbotron" onclick="window.location.href='/inventario/inventario';">
                     <h1 class="display-5">Inventario</h1>
                     <p class="lead">Descripción o contenido relacionado con Inventario.</p>
                 </div>
-                <div class="jumbotron" onclick="window.location.href='reportes.html';">
+                <div class="jumbotron" onclick="window.location.href='/reportes/ordenventa';">
                     <h1 class="display-5">Reportes</h1>
+                    <p class="lead">Descripción o contenido relacionado con Reportes.</p>
+                </div>
+                <div class="jumbotron" onclick="window.location.href='/cronogramas/crear_cronograma';">
+                    <h1 class="display-5">Bancos - Sunat</h1>
                     <p class="lead">Descripción o contenido relacionado con Reportes.</p>
                 </div>
             </div>
@@ -60,3 +64,79 @@
     </div>
 </body>
 </html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JP Ingeniería Sistema Contable</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://bootswatch.com/5/morph/bootstrap.min.css">
+    <style>
+        .jumbotron {
+            background-color: transparent;
+            color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .breadcrumb {
+            font-size: 40px; /* Ajusta el tamaño del título del breadcrumb */
+        }
+        .jumbotron a {
+            color: #fff;
+            text-decoration: none;
+        }
+        .jumbotron a:hover {
+            text-decoration: underline;
+        }
+        .jumbotron:hover {
+            background-color: #2c3e50; /* Cambia el color al pasar el ratón */
+            transform: scale(1.05); /* Aumenta ligeramente el tamaño al pasar el ratón */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <ol class="breadcrumb mt-4">
+            <li class="breadcrumb-item active">Sistema Contable Hekate</li>
+        </ol>
+        <div class="row text-center">
+            <div class="col-md-6 col-lg-4">
+                <div class="jumbotron" onclick="window.location.href='/ordenventa';">
+                    <h1 class="display-5">Ventas</h1>
+                    <p class="lead">Descripción o contenido relacionado con Ventas.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="jumbotron card-compras" onclick="window.location.href='/ordencompra';">
+                    <h1 class="display-5">Compras</h1>
+                    <p class="lead">Descripción o contenido relacionado con Compras.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="jumbotron" onclick="window.location.href='/inventario/inventario';">
+                    <h1 class="display-5">Inventario</h1>
+                    <p class="lead">Descripción o contenido relacionado con Inventario.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="jumbotron" onclick="window.location.href='/reportes/ordenventa';">
+                    <h1 class="display-5">Reportes</h1>
+                    <p class="lead">Descripción o contenido relacionado con Reportes.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="jumbotron" onclick="window.location.href='/cronogramas/crear_cronograma';">
+                    <h1 class="display-5">Bancos - Sunat</h1>
+                    <p class="lead">Descripción o contenido relacionado con Reportes.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

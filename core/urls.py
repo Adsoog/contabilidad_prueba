@@ -25,5 +25,6 @@ urlpatterns = [
     path("inventario/", include('inventario.urls')), # Incluye las URLs de ordencompra
     path("reportes/", include('reportes.urls')),
     path("list/", include('app.urls')),
+    path("cronogramas/", include('cronogramas.urls')),
     path("",include('home.urls')),
 ]

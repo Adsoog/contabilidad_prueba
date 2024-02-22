@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ver Pagos del Cronograma</title>
+</head>
+<body>
+
+<div class="container">
+    <h2>Pagos del Cronograma {{ cronograma.id }}</h2>
+    <ul>
+        {% for pago in pagos %}
+            <li>{{ pago.fecha_pago }} - Monto: {{ pago.monto_pago }}</li>
+        {% empty %}
+            <li>No hay pagos para este cronograma.</li>
+        {% endfor %}
+    </ul>
+</div>
+
+</body>
+</html>
