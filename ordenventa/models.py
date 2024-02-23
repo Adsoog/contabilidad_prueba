@@ -1,8 +1,6 @@
 from django.db import models
 
 # Create your models here.
-
-
 class OrdenVenta(models.Model):
     codigosap = models.CharField(max_length=50)
     proyecto = models.CharField(max_length=255)
@@ -12,8 +10,6 @@ class OrdenVenta(models.Model):
 
     def __str__(self):
         return f"{self.codigosap} - {self.proyecto} - {self.direccion_proyecto}"
-
-
 class ItemOrdenVenta(models.Model):
     ordenventa = models.ForeignKey(
         OrdenVenta, related_name="items", on_delete=models.CASCADE

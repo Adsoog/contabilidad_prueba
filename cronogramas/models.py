@@ -14,7 +14,8 @@ class Cronograma(models.Model):
     numero_cuotas = models.PositiveIntegerField()
     monto_cuota = models.DecimalField(max_digits=15, decimal_places=2)
     monto_total = models.DecimalField(max_digits=15, decimal_places=2)
-    detalle = models.TextField()
+    detalle = models.CharField(max_length=255)  # Ajusta la longitud máxima según sea necesario
+    doc = models.FileField(upload_to='pdf/', null=True, blank=True, default=None)
 
     def __str__(self):
         return f"Cronograma {self.id} - {self.entidad_bancaria} - {self.detalle}"
@@ -23,6 +24,7 @@ class PagoCronograma(models.Model):
     cronograma = models.ForeignKey(Cronograma, on_delete=models.CASCADE)
     fecha_pago = models.DateField()
     monto_pago = models.DecimalField(max_digits=15, decimal_places=2)
+    pdf_pago = models.FileField(upload_to='pagos_pdfs/')  # Campo para guardar archivos PDF de pagos
 
     def __str__(self):
         return f"Pago de {self.monto_pago} el {self.fecha_pago}"

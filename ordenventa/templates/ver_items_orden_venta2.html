@@ -15,7 +15,7 @@
                 <th>Código</th>
                 <th>Descripción</th>
                 <th>Cantidad Solicitada</th>
-                <th>Cantidad en inventario</th>
+                <th>Cantidad Disponible en Inventario</th>
             </tr>
         </thead>
         <tbody>
@@ -27,7 +27,7 @@
                     <td>
                         {% for articulo in inventario %}
                             {% if articulo.num_articulo == item.nro_articulo %}
-                                {{ articulo.en_stock }}
+                                {{ articulo.en_stock|add:item.cantidad }}
                             {% endif %}
                         {% endfor %}
                     </td>

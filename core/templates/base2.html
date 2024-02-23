@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="">
+    <title>Document</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', 'sans-serif';
+        }
+        .header{
+            width: 100%;
+            height: 100vh;
+            background-image: url(/static/images/background.png);
+            background-position: center;
+            background-size: cover;
+        }
+        .side-nav{
+            width: 250px;
+            height: 100px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 30px 15px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px); /* Utiliza backdrop-filter */
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="side-nav">
+            <div class="user">
+                <img src="/static/images/user.png" class="user-img">
+                <div>
+                    <h2>Thomas Daniel</h2>
+                    <p>thomas@xyz.com</p>
+                </div>
+                <img src="/static/images/star.png" class="star-img">
+            </div>
+            <ul>
+                <li><img src="/static/images/dashboard.png"><p>Dashboard</p></li>
+                <li><img src="/static/images/reports.png"><p>Reports</p></li>
+                <li><img src="/static/images/rewards.png"><p>Dashboard</p></li>
+                <li><img src="/static/images/messages.png"><p>Dashboard</p></li>
+                <li><img src="/static/images/video-chat.png"><p>Dashboard</p></li>
+                <li><img src="/static/images/projects.png"><p>Dashboard</p></li>
+                <li><img src="/static/images/members.png"><p>Dashboard</p></li>
+                <li><img src="/static/images/setting.png"><p>Dashboard</p></li>
+            </ul>
+            <ul>
+                <li><img src="/static/images/dashboard.png"><p>logout</p></li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

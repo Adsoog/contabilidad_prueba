@@ -27,4 +27,7 @@ urlpatterns = [
     path("list/", include('app.urls')),
     path("cronogramas/", include('cronogramas.urls')),
     path("",include('home.urls')),
+    path("extractos",include('extractos.urls')),
+
+
 ]

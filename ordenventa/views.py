@@ -1,5 +1,5 @@
 from rest_framework import generics
-
+from django.http import HttpResponse, JsonResponse
 from inventario.models import Inventario
 from .models import OrdenVenta, ItemOrdenVenta
 from .serializers import OrdenVentaSerializer, ItemOrdenVentaSerializer
@@ -9,6 +9,7 @@ from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect, JsonResponse
 from .forms import ItemOrdenVentaForm, OrdenVentaForm, OrdenVentaUploadForm
 from openpyxl import load_workbook
+from django.db import transaction
 
 
 class OrdenVentaCRUDView(View):
@@ -101,29 +102,51 @@ def ver_items_orden_venta(request, ordenventa_id):
         {"ordenventa": ordenventa, "items": items},
     )
 
+# def ver_items_orden_venta2(request, ordenventa_id):
+#     ordenventa = get_object_or_404(OrdenVenta, pk=ordenventa_id)
+#     items = ItemOrdenVenta.objects.filter(ordenventa=ordenventa)
+
+#     # Obtener los nro_articulo de los items de la orden de venta
+#     nros_articulos = [item.nro_articulo for item in items]
+
+#     # Filtrar los registros de Inventario que coinciden con los nro_articulo de los items
+#     inventario = Inventario.objects.filter(num_articulo__in=nros_articulos)
+
+#     return render(
+#         request,
+#         "ver_items_orden_venta2.html",
+#         {"ordenventa": ordenventa, "items": items, "inventario": inventario},
+#     )
+
 def ver_items_orden_venta2(request, ordenventa_id):
     ordenventa = get_object_or_404(OrdenVenta, pk=ordenventa_id)
     items = ItemOrdenVenta.objects.filter(ordenventa=ordenventa)
 
-    # Obtener los nro_articulo de los items de la orden de venta
-    nros_articulos = [item.nro_articulo for item in items]
+    # Iniciar una transacción para asegurar la consistencia de la base de datos
+    with transaction.atomic():
+        try:
+            # Iterar sobre cada artículo en la orden de venta
+            for item in items:
+                # Obtener el artículo de inventario correspondiente
+                articulo = Inventario.objects.get(num_articulo=item.nro_articulo)
+                # Restar la cantidad solicitada del inventario
+                articulo.en_stock -= item.cantidad
+                # Guardar el artículo actualizado en la base de datos
+                articulo.save()
+        except Inventario.DoesNotExist:
+            # Manejar el caso en que no se encuentre el artículo en el inventario
+            return HttpResponse("Error: Artículo no encontrado en el inventario")
 
-    # Filtrar los registros de Inventario que coinciden con los nro_articulo de los items
-    inventario = Inventario.objects.filter(num_articulo__in=nros_articulos)
-
+    # Luego de actualizar el inventario, continuar con el renderizado del template
     return render(
         request,
         "ver_items_orden_venta2.html",
-        {"ordenventa": ordenventa, "items": items, "inventario": inventario},
+        {"ordenventa": ordenventa, "items": items},
     )
 
 
 
-
 # VER LOS ITEMS SEGUN ENVIADOS Y LUEGO PROCESAR CON DEMS FUNCIONES
-from django.http import JsonResponse
-
-
 def ver_items_enviados_orden_venta(request, ordenventa_id):
     ordenventa = get_object_or_404(OrdenVenta, pk=ordenventa_id)
     items_enviados = ItemOrdenVenta.objects.filter(ordenventa=ordenventa, enviado=True)
@@ -146,7 +169,6 @@ def ver_items_enviados_orden_venta(request, ordenventa_id):
         "ver_items_enviados_orden_venta.html",
         {"ordenventa": ordenventa, "items_enviados": items_enviados},
     )
-
 
 # REDIRIGIR LOS ITEMS
 def procesar_seleccion(request, ordenventa_id):
