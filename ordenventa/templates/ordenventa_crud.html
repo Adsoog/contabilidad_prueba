@@ -7,19 +7,19 @@
     <div class="row">
         <div class="col-md-6">
             <div class="card">
-                <div class="card-header">
-                    <h2>Crear Nueva Orden de Venta</h2>
-                </div>
-                <div class="card-body">
-                    <!-- Formulario de creación -->
-                    <form method="post" action="{% url 'ordenventa-crud' %}">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            {{ form.as_p }}
-                        </div>
-                        <button type="submit" class="btn btn-primary">Guardar</button>
-                    </form>
-                </div>
+                {% load crispy_forms_tags %}
+            <div class="card-header">
+                <h2>Crear Nueva Orden de Venta</h2>
+            </div>
+            <div class="card-body">
+                <!-- Formulario de creación -->
+                <form method="post" action="{% url 'ordenventa-crud' %}">
+                    {% csrf_token %}
+                    <!-- Utiliza el filtro |crispy para renderizar el formulario con crispy forms -->
+                    {{ form|crispy }}
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </form>
+            </div>
             </div>
         </div>
         <div class="col-md-6">
