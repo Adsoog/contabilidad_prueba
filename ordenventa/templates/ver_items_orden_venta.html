@@ -3,65 +3,49 @@
 {% block content %}
 <h1 class="mb-4">Items de la Orden de Venta {{ ordenventa }}</h1>
 
-<!-- Botón para abrir el modal -->
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#miModal">
-  Mostrar Tabla de Precios
-</button>
-
-<!-- Modal -->
-<div class="modal fade" id="miModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg custom-modal-size" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalLabel">Título del Modal</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <!-- Contenido del modal: Tabla de Precios -->
-                <div class="table-responsive"> <!-- Agregar la clase table-responsive para hacer la tabla responsive -->
-                    <table class="table table-bordered"> <!-- Agregar clases de Bootstrap para estilizar la tabla -->
-                        <tr>
-                            <th>Descripción</th>
-                            <th>Precio Unitario</th>
-                            <th>Cantidad</th>
-                            <th>IGV (%)</th>
-                            <th>Detracción (%)</th>
-                            <th>Precio Total</th>
-                            <th>Proveedor</th>
-                            <th>Banco</th>
-                            <th>Número Bancario</th>
-                            <th>Cuotas</th>
-                            <th>Tipo de Pago</th>
-                        </tr>
-                        <tr>
-                            <td><input type="text" id="descripcion" /></td>
-                            <td><input type="number" id="precio" oninput="calcularPrecioTotal()" /></td>
-                            <td><input type="number" id="cantidad" oninput="calcularPrecioTotal()" /></td>
-                            <td><input type="number" id="igv" oninput="calcularPrecioTotal()" /></td>
-                            <td><input type="number" id="detraccion" oninput="calcularPrecioTotal()" /></td>
-                            <td id="precioTotal">0.00</td>
-                            <td><input type="text" id="proveedor" /></td>
-                            <td><input type="text" id="banco" /></td>
-                            <td><input type="text" id="numeroBancario" /></td>
-                            <td><input type="number" id="cuotas" /></td>
-                            <td>
-                                <select id="tipoDePago">
-                                    <option value="soles">SOLES</option>
-                                    <option value="dolares">DOLARES</option>
-                                </select>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary">Guardar cambios</button>
-            </div>
-        </div>
-    </div>
+<!-- Contenido previamente en el modal: Tabla de Precios ahora fuera -->
+<div class="table-responsive">
+    <!-- Clase table-responsive para hacer la tabla responsive -->
+    <table class="table table-bordered">
+        <!-- Clases de Bootstrap para estilizar la tabla -->
+        <thead>
+            <tr>
+                <th>Descripción</th>
+                <th>Precio Unitario</th>
+                <th>Cantidad</th>
+                <th>IGV (%)</th>
+                <th>Detracción (%)</th>
+                <th>Precio Total</th>
+                <th>Proveedor</th>
+                <th>Banco</th>
+                <th>Número Bancario</th>
+                <th>Cuotas</th>
+                <th>Tipo de Pago</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><input type="text" id="descripcion" /></td>
+                <td><input type="number" id="precio" oninput="calcularPrecioTotal()" /></td>
+                <td><input type="number" id="cantidad" oninput="calcularPrecioTotal()" /></td>
+                <td><input type="number" id="igv" oninput="calcularPrecioTotal()" /></td>
+                <td><input type="number" id="detraccion" oninput="calcularPrecioTotal()" /></td>
+                <td id="precioTotal">0.00</td>
+                <td><input type="text" id="proveedor" /></td>
+                <td><input type="text" id="banco" /></td>
+                <td><input type="text" id="numeroBancario" /></td>
+                <td><input type="number" id="cuotas" /></td>
+                <td>
+                    <select id="tipoDePago">
+                        <option value="soles">SOLES</option>
+                        <option value="dolares">DOLARES</option>
+                    </select>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <!-- Botón para añadir filas -->
+    <button type="button" class="btn btn-success" onclick="agregarFila()">Añadir Fila</button>
 </div>
 
 <script>
@@ -84,48 +68,43 @@
         // Mostrar precio total
         document.getElementById("precioTotal").innerHTML = totalConDetraccion.toFixed(2);
     }
-</script>
-<script>
-    // Función para copiar la información de items-container a la tabla responsive
-    function copiarInformacionATabla() {
-        var itemsContainer = document.getElementById('items-container');
-        var itemsTabla = itemsContainer.querySelector('.table');
-        var tablaResponsive = document.querySelector('.table-responsive table tbody');
+    
+    function agregarFila() {
+        var tabla = document.querySelector(".table-responsive .table tbody");
+        var nuevaFila = tabla.insertRow(-1); // Inserta una fila al final de la tabla
 
-        // Obtener filas de la tabla original
-        var filasOriginales = itemsTabla.querySelectorAll('tbody tr');
+        // Definir el contenido de la nueva fila (ajustar según sea necesario)
+        var celdaHTML = `
+            <td><input type="text" /></td>
+            <td><input type="number" oninput="calcularPrecioTotal()" /></td>
+            <td><input type="number" oninput="calcularPrecioTotal()" /></td>
+            <td><input type="number" oninput="calcularPrecioTotal()" /></td>
+            <td><input type="number" oninput="calcularPrecioTotal()" /></td>
+            <td>0.00</td>
+            <td><input type="text" /></td>
+            <td><input type="text" /></td>
+            <td><input type="text" /></td>
+            <td><input type="number" /></td>
+            <td>
+                <select>
+                    <option value="soles">SOLES</option>
+                    <option value="dolares">DOLARES</option>
+                </select>
+            </td>
+        `;
 
-        // Iterar sobre las filas originales
-        filasOriginales.forEach(function(filaOriginal) {
-            // Crear una nueva fila en la tabla responsive
-            var nuevaFila = document.createElement('tr');
-
-            // Obtener la descripción, precio unitario y cantidad de la fila original
-            var descripcion = filaOriginal.querySelector('td:nth-child(3)').innerText;
-            var precioUnitario = filaOriginal.querySelector('td:nth-child(4)').innerText;
-            var cantidad = filaOriginal.querySelector('td:nth-child(5)').innerText;
-
-            // Agregar celdas con la información obtenida a la nueva fila
-            nuevaFila.innerHTML = '<td contenteditable="true">' + descripcion + '</td>' +
-                                   '<td contenteditable="true">' + precioUnitario + '</td>' +
-                                   '<td contenteditable="true">' + cantidad + '</td>';
-
-            // Agregar la nueva fila a la tabla responsive
-            tablaResponsive.appendChild(nuevaFila);
-        });
+        // Asignar el contenido a la nueva fila
+        nuevaFila.innerHTML = celdaHTML;
     }
 
-    // Llamar a la función para copiar la información cuando el documento esté listo
-    document.addEventListener('DOMContentLoaded', function() {
-        copiarInformacionATabla();
-    });
+
+
 </script>
-
-
 
 <!-- Contenedor para la tabla de items que será actualizada por HTMX -->
 <div id="items-container">
-    <!-- {% include "fragmentos/items_orden_venta.html" %} -->
+    <!-- Aquí se incluiría el contenido de "fragmentos/items_orden_venta.html" si es necesario -->
+    <!-- Ejemplo de tabla con items de orden de venta, ajustar según sea necesario -->
     <table class="table">
         <thead class="table-dark">
             <tr>
@@ -157,3 +136,4 @@
 </div>
 
 {% endblock %}
+

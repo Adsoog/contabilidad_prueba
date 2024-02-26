@@ -24,7 +24,20 @@ def ver_pagos_cronograma(request, cronograma_id):
         request, "ver_pagos_cronograma.html", {"cronograma": cronograma, "pagos": pagos}
     )
 
+def pagos_cronograma(request, cronograma_id):
+    pagos = PagoCronograma.objects.filter(cronograma_id=cronograma_id)
+    return render(request, 'pagos_cronograma.html', {'pagos': pagos})
+
 
 def ver_cronogramas(request):
     cronogramas = Cronograma.objects.all()
+    return render(request, "ver_cronogramas.html", {"cronogramas": cronogramas})
+
+
+def ver_cronogramas_filtrados(request, tipo):
+    if tipo == 'sunat':
+        cronogramas = Cronograma.objects.filter(entidad_bancaria__icontains='SUNAT')
+    else:
+        cronogramas = Cronograma.objects.exclude(entidad_bancaria__icontains='SUNAT')
+    
     return render(request, "ver_cronogramas.html", {"cronogramas": cronogramas})

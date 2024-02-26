@@ -47,6 +47,9 @@
                     <button class="btn btn-primary btn-edit" data-id="{{ cronograma.id }}">Editar</button>
                     <button class="btn btn-danger btn-delete" data-id="{{ cronograma.id }}">Eliminar</button>
                 </td>
+                <td>
+                    <a href="{% url 'pagos_cronograma' cronograma.id %}" class="btn btn-info">Ver Pagos</a>
+                </td>
             </tr>
             {% endfor %}
         </tbody>

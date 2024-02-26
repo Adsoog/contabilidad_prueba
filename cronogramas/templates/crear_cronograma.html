@@ -8,9 +8,8 @@
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="mb-3">
-                <a href="" class="btn btn-primary">Prestamos</a>
-                <a href="" class="btn btn-primary">Tarjetas</a>
-                <a href="" class="btn btn-primary">Sunat</a>
+                <a href="{% url 'ver_cronogramas_filtrados' tipo='prestamos_tarjetas' %}">Prestamos y Tarjetas</a>
+                <a href="{% url 'ver_cronogramas_filtrados' tipo='sunat' %}">Sunat</a>
                 <a href="{% url 'ver_cronogramas' %}">Ver Cronogramas</a>
 
             </div>

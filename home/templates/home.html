@@ -15,6 +15,7 @@
             background-image: url('https://wallpapers.com/images/featured/soft-aesthetic-cei80uravrnl6ltm.jpg');
             background-size: cover;
             background-position: center;
+            transition: opacity 0.5s ease-out; /* Añade transición de opacidad */
         }
         .jumbotron {
             background-color: transparent;
@@ -24,6 +25,7 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
             transition: background-color 0.3s, transform 0.3s;
+            cursor: pointer; /* Indica que es clickeable */
         }
         .jumbotron:hover {
             background-color: #fff; /* Cambiado a color claro */
@@ -35,10 +37,6 @@
         .jumbotron {
             text-align: center; /* Centrar texto */
         }
-        .breadcrumb {
-            font-size: 40px;
-            color: #000; /* Cambiado a negro */
-        }
     </style>
 </head>
 <body>
@@ -48,28 +46,44 @@
         </div>
         <div class="row text-center">
             <div class="col-md-12">
-                <div class="jumbotron" onclick="window.location.href='/ordenventa';">
+                <div class="jumbotron" data-url="/ordenventa">
                     <h1 class="display-5">Ventas</h1>
                     <p class="lead">Descripción o contenido relacionado con Ventas.</p>
                 </div>
-                <div class="jumbotron card-compras" onclick="window.location.href='/ordencompra';">
+                <div class="jumbotron" data-url="/ordencompra">
                     <h1 class="display-5">Compras</h1>
                     <p class="lead">Descripción o contenido relacionado con Compras.</p>
                 </div>
-                <div class="jumbotron" onclick="window.location.href='/inventario/inventario';">
+                <div class="jumbotron" data-url="/inventario/inventario">
                     <h1 class="display-5">Inventario</h1>
                     <p class="lead">Descripción o contenido relacionado con Inventario.</p>
                 </div>
-                <div class="jumbotron" onclick="window.location.href='/reportes/ordenventa';">
+                <div class="jumbotron" data-url="/reportes/ordenventa">
                     <h1 class="display-5">Reportes</h1>
                     <p class="lead">Descripción o contenido relacionado con Reportes.</p>
                 </div>
-                <div class="jumbotron" onclick="window.location.href='/cronogramas/crear_cronograma';">
+                <div class="jumbotron" data-url="/cronogramas/crear_cronograma">
                     <h1 class="display-5">Bancos - Sunat</h1>
                     <p class="lead">Descripción o contenido relacionado con Reportes.</p>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const jumbotrons = document.querySelectorAll('.jumbotron');
+            jumbotrons.forEach(function(jumbotron) {
+                jumbotron.addEventListener('click', function() {
+                    const url = this.getAttribute('data-url'); // Usa un atributo data-url para la URL
+                    document.body.style.opacity = '0'; // Inicia la animación de fade-out
+                    
+                    setTimeout(function() {
+                        window.location.href = url;
+                    }, 500); // Espera 500 ms para coincidir con la duración de la animación
+                });
+            });
+        });
+    </script>
 </body>
 </html>

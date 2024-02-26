@@ -9,7 +9,7 @@ class OrdenVenta(models.Model):
     fecha = models.DateField()
 
     def __str__(self):
-        return f"{self.codigosap} - {self.proyecto} - {self.direccion_proyecto}"
+        return f"{self.codigosap} - {self.proyecto} - {self.observacion}"
 class ItemOrdenVenta(models.Model):
     ordenventa = models.ForeignKey(
         OrdenVenta, related_name="items", on_delete=models.CASCADE
@@ -22,4 +22,4 @@ class ItemOrdenVenta(models.Model):
     enviado = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.nro_articulo} - {self.ordenventa}"
+        return f"{self.nro_articulo} - {self.ordenventa} - {self.desc_articulo}"
