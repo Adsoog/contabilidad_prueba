@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %} Reportes y registros {% endblock %}
+
+{% block content %}
+
+<form action="" method="post">
+    {% csrf_token %}
+    <button type="submit" formaction="{% url 'lista_ordenes_venta' %}">Reportes</button><br><br>
+    <button type="submit" formaction="">Extractos Bancarios</button><br><br>
+    <button type="submit" formaction="">Bancos</button><br><br>
+    <button type="submit" formaction="">Proveedores</button><br><br>
+    <button type="submit" formaction="#">Algo más</button><br><br>
+</form>
+
+{% endblock %}

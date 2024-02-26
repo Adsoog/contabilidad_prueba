@@ -1,6 +1,10 @@
 from django.shortcuts import render, get_object_or_404
 from ordenventa.models import OrdenVenta, ItemOrdenVenta
 
+
+def reportes_registros(request):
+    return render(request, 'reportes_registros.html')   
+
 def calcular_precio_bruto_total(orden_venta):
     # Obtener todos los items relacionados con esta orden
     items = ItemOrdenVenta.objects.filter(ordenventa=orden_venta)
@@ -25,3 +29,4 @@ def reporte_precio_bruto_total(request, ordenventa_id=None):
             "lista_ordenes_venta.html",
             {"ordenes_venta": ordenes_venta},
         )
+    
