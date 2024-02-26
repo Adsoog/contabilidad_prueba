@@ -3,8 +3,12 @@ from .views import crear_cronograma
 from . import views
 
 urlpatterns = [
-    path('crear_cronograma/', crear_cronograma, name='crear_cronograma'),
-    path('cronogramas/<int:cronograma_id>/ver_pagos/', views.ver_pagos_cronograma, name='ver_pagos_cronograma'),
-
+    path("crear_cronograma/", crear_cronograma, name="crear_cronograma"),
+    path(
+        "cronogramas/<int:cronograma_id>/ver_pagos/",
+        views.ver_pagos_cronograma,
+        name="ver_pagos_cronograma",
+    ),
+    path("ver_cronogramas/", views.ver_cronogramas, name="ver_cronogramas"),
     # Otras URLs de tu aplicación...
 ]

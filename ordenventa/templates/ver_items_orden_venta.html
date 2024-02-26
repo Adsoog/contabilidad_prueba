@@ -1,30 +1,137 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1 class="mb-4">Items de la Orden de Venta {{ ordenventa }}</h1>
+<h1 class="mb-4">Items de la Orden de Venta {{ ordenventa }}</h1>
 
-    <form method="get" action="{% url 'ver_items_orden_venta2' ordenventa_id=ordenventa.id %}" class="mb-4">
-        
-        
-        <div class="mb-3">
-            <label for="action" class="form-label">Selecciona una acción:</label>
-            <select name="action" class="form-select">
-                <option value="eliminar">Eliminar</option>
-                <option value="marcar_enviado">Marcar como Enviado</option>
-                <!-- Agrega más opciones según sea necesario -->
-            </select>
+<!-- Botón para abrir el modal -->
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#miModal">
+  Mostrar Tabla de Precios
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="miModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg custom-modal-size" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalLabel">Título del Modal</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Contenido del modal: Tabla de Precios -->
+                <div class="table-responsive"> <!-- Agregar la clase table-responsive para hacer la tabla responsive -->
+                    <table class="table table-bordered"> <!-- Agregar clases de Bootstrap para estilizar la tabla -->
+                        <tr>
+                            <th>Descripción</th>
+                            <th>Precio Unitario</th>
+                            <th>Cantidad</th>
+                            <th>IGV (%)</th>
+                            <th>Detracción (%)</th>
+                            <th>Precio Total</th>
+                            <th>Proveedor</th>
+                            <th>Banco</th>
+                            <th>Número Bancario</th>
+                            <th>Cuotas</th>
+                            <th>Tipo de Pago</th>
+                        </tr>
+                        <tr>
+                            <td><input type="text" id="descripcion" /></td>
+                            <td><input type="number" id="precio" oninput="calcularPrecioTotal()" /></td>
+                            <td><input type="number" id="cantidad" oninput="calcularPrecioTotal()" /></td>
+                            <td><input type="number" id="igv" oninput="calcularPrecioTotal()" /></td>
+                            <td><input type="number" id="detraccion" oninput="calcularPrecioTotal()" /></td>
+                            <td id="precioTotal">0.00</td>
+                            <td><input type="text" id="proveedor" /></td>
+                            <td><input type="text" id="banco" /></td>
+                            <td><input type="text" id="numeroBancario" /></td>
+                            <td><input type="number" id="cuotas" /></td>
+                            <td>
+                                <select id="tipoDePago">
+                                    <option value="soles">SOLES</option>
+                                    <option value="dolares">DOLARES</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary">Guardar cambios</button>
+            </div>
         </div>
-        
-        <button type="submit" class="btn btn-primary">Procesar Selección</button>
-        <button type="submit" class="btn btn-primary me-2">Ver Stock</button>
-    </form>
+    </div>
+</div>
 
+<script>
+    // Función para calcular el precio total incluyendo IGV y detracción
+    function calcularPrecioTotal() {
+        var cantidad = parseFloat(document.getElementById("cantidad").value);
+        var precio = parseFloat(document.getElementById("precio").value);
+        var igv = parseFloat(document.getElementById("igv").value);
+        var detraccion = parseFloat(document.getElementById("detraccion").value);
+        
+        // Calcular subtotal
+        var subtotal = cantidad * precio;
+        
+        // Calcular total con IGV
+        var totalConIgv = subtotal * (1 + igv / 100);
+        
+        // Calcular detracción
+        var totalConDetraccion = totalConIgv * (1 - detraccion / 100);
+
+        // Mostrar precio total
+        document.getElementById("precioTotal").innerHTML = totalConDetraccion.toFixed(2);
+    }
+</script>
+<script>
+    // Función para copiar la información de items-container a la tabla responsive
+    function copiarInformacionATabla() {
+        var itemsContainer = document.getElementById('items-container');
+        var itemsTabla = itemsContainer.querySelector('.table');
+        var tablaResponsive = document.querySelector('.table-responsive table tbody');
+
+        // Obtener filas de la tabla original
+        var filasOriginales = itemsTabla.querySelectorAll('tbody tr');
+
+        // Iterar sobre las filas originales
+        filasOriginales.forEach(function(filaOriginal) {
+            // Crear una nueva fila en la tabla responsive
+            var nuevaFila = document.createElement('tr');
+
+            // Obtener la descripción, precio unitario y cantidad de la fila original
+            var descripcion = filaOriginal.querySelector('td:nth-child(3)').innerText;
+            var precioUnitario = filaOriginal.querySelector('td:nth-child(4)').innerText;
+            var cantidad = filaOriginal.querySelector('td:nth-child(5)').innerText;
+
+            // Agregar celdas con la información obtenida a la nueva fila
+            nuevaFila.innerHTML = '<td contenteditable="true">' + descripcion + '</td>' +
+                                   '<td contenteditable="true">' + precioUnitario + '</td>' +
+                                   '<td contenteditable="true">' + cantidad + '</td>';
+
+            // Agregar la nueva fila a la tabla responsive
+            tablaResponsive.appendChild(nuevaFila);
+        });
+    }
+
+    // Llamar a la función para copiar la información cuando el documento esté listo
+    document.addEventListener('DOMContentLoaded', function() {
+        copiarInformacionATabla();
+    });
+</script>
+
+
+
+<!-- Contenedor para la tabla de items que será actualizada por HTMX -->
+<div id="items-container">
+    <!-- {% include "fragmentos/items_orden_venta.html" %} -->
     <table class="table">
         <thead class="table-dark">
             <tr>
                 <th>Seleccionar</th>
                 <th>Número de Artículo</th>
-                <th>Desc de Artículo</th>
+                <th>Descripción del Artículo</th>
                 <th>Cantidad</th>
                 <th>Precio Bruto</th>
                 <th>Total Bruto</th>
@@ -32,17 +139,21 @@
         </thead>
         <tbody>
             {% for item in items %}
-                {% if not item.enviado %}
-                    <tr class="table-success">
-                        <td><input type="checkbox" name="selected_items" value="{{ item.id }}"></td>
-                        <td>{{ item.nro_articulo }}</td>
-                        <td>{{ item.desc_articulo }}</td>
-                        <td>{{ item.cantidad }}</td>
-                        <td>{{ item.precio_bruto }}</td>
-                        <td>{{ item.total_bruto }}</td>
-                    </tr>
-                {% endif %}
+            <tr class="{% if not item.enviado %}table-success{% endif %}">
+                <td><input type="checkbox" name="selected_items" value="{{ item.id }}"></td>
+                <td>{{ item.nro_articulo }}</td>
+                <td>{{ item.desc_articulo }}</td>
+                <td>{{ item.cantidad }}</td>
+                <td>{{ item.precio_bruto | floatformat:2 }}</td>
+                <td>{{ item.total_bruto | floatformat:2 }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">No hay items en esta orden de venta.</td>
+            </tr>
             {% endfor %}
         </tbody>
     </table>
+</div>
+
 {% endblock %}

@@ -10,8 +10,10 @@ from django.http import HttpResponseRedirect, JsonResponse
 from .forms import ItemOrdenVentaForm, OrdenVentaForm, OrdenVentaUploadForm
 from openpyxl import load_workbook
 from django.db import transaction
+from django.template.loader import render_to_string
 
 
+# antiguos view debemos depurar despues
 class OrdenVentaCRUDView(View):
     template_name = "ordenventa_crud.html"
 
@@ -59,6 +61,24 @@ class OrdenVentaCRUDView(View):
             )
 
 
+def procesar_seleccion(request, ordenventa_id):
+    if request.method == "POST":
+        selected_items = request.POST.getlist("selected_items")
+        action = request.POST.get("action")
+
+        if action == "eliminar":
+            # Elimina los ítems seleccionados
+            ItemOrdenVenta.objects.filter(id__in=selected_items).delete()
+        elif action == "marcar_enviado":
+            # Marca como enviado los ítems seleccionados
+            ItemOrdenVenta.objects.filter(id__in=selected_items).update(enviado=True)
+
+        # Redirige según la acción
+        return redirect("ver_items_orden_venta", ordenventa_id=ordenventa_id)
+
+    return redirect("ordenventa_crud")
+
+
 # FUNCION PARA PROCESAR EL EXCEL
 def procesar_orden_venta_excel(request, ordenventa_id):
     if request.method == "POST":
@@ -96,54 +116,33 @@ def ver_items_orden_venta(request, ordenventa_id):
     ordenventa = get_object_or_404(OrdenVenta, pk=ordenventa_id)
     items = ItemOrdenVenta.objects.filter(ordenventa=ordenventa)
 
+    # Verificar si la solicitud es una solicitud HTMX
+    if request.headers.get("HX-Request", "false").lower() == "true":
+        html = render_to_string("fragmentos/items_orden_venta.html", {"items": items})
+        return JsonResponse({"html": html})
+
     return render(
         request,
         "ver_items_orden_venta.html",
         {"ordenventa": ordenventa, "items": items},
     )
 
-# def ver_items_orden_venta2(request, ordenventa_id):
-#     ordenventa = get_object_or_404(OrdenVenta, pk=ordenventa_id)
-#     items = ItemOrdenVenta.objects.filter(ordenventa=ordenventa)
-
-#     # Obtener los nro_articulo de los items de la orden de venta
-#     nros_articulos = [item.nro_articulo for item in items]
-
-#     # Filtrar los registros de Inventario que coinciden con los nro_articulo de los items
-#     inventario = Inventario.objects.filter(num_articulo__in=nros_articulos)
-
-#     return render(
-#         request,
-#         "ver_items_orden_venta2.html",
-#         {"ordenventa": ordenventa, "items": items, "inventario": inventario},
-#     )
 
 def ver_items_orden_venta2(request, ordenventa_id):
     ordenventa = get_object_or_404(OrdenVenta, pk=ordenventa_id)
     items = ItemOrdenVenta.objects.filter(ordenventa=ordenventa)
 
-    # Iniciar una transacción para asegurar la consistencia de la base de datos
-    with transaction.atomic():
-        try:
-            # Iterar sobre cada artículo en la orden de venta
-            for item in items:
-                # Obtener el artículo de inventario correspondiente
-                articulo = Inventario.objects.get(num_articulo=item.nro_articulo)
-                # Restar la cantidad solicitada del inventario
-                articulo.en_stock -= item.cantidad
-                # Guardar el artículo actualizado en la base de datos
-                articulo.save()
-        except Inventario.DoesNotExist:
-            # Manejar el caso en que no se encuentre el artículo en el inventario
-            return HttpResponse("Error: Artículo no encontrado en el inventario")
+    # Obtener los nro_articulo de los items de la orden de venta
+    nros_articulos = [item.nro_articulo for item in items]
 
-    # Luego de actualizar el inventario, continuar con el renderizado del template
+    # Filtrar los registros de Inventario que coinciden con los nro_articulo de los items
+    inventario = Inventario.objects.filter(num_articulo__in=nros_articulos)
+
     return render(
         request,
         "ver_items_orden_venta2.html",
-        {"ordenventa": ordenventa, "items": items},
+        {"ordenventa": ordenventa, "items": items, "inventario": inventario},
     )
-
 
 
 # VER LOS ITEMS SEGUN ENVIADOS Y LUEGO PROCESAR CON DEMS FUNCIONES
@@ -170,28 +169,8 @@ def ver_items_enviados_orden_venta(request, ordenventa_id):
         {"ordenventa": ordenventa, "items_enviados": items_enviados},
     )
 
+
 # REDIRIGIR LOS ITEMS
-def procesar_seleccion(request, ordenventa_id):
-    if request.method == "POST":
-        selected_items = request.POST.getlist("selected_items")
-        action = request.POST.get("action")
-
-        # Lógica para procesar la selección según la acción
-        if action == "eliminar":
-            # Código para eliminar los items seleccionados
-            ItemOrdenVenta.objects.filter(id__in=selected_items).delete()
-        elif action == "marcar_enviado":
-            # Código para marcar como enviado los items seleccionados
-            ItemOrdenVenta.objects.filter(id__in=selected_items).update(enviado=True)
-
-        # Lógica para redirigir a la vista correcta después de procesar la selección
-        if action == "eliminar":
-            return redirect("ver_items_orden_venta", ordenventa_id=ordenventa_id)
-        elif action == "marcar_enviado":
-            return redirect(
-                "ver_items_enviados_orden_venta", ordenventa_id=ordenventa_id
-            )
-
 
 # desde aqui no hay nada interesante :P
 

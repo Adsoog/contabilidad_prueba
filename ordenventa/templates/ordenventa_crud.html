@@ -3,68 +3,42 @@
 {% block title %} Orden Venta {% endblock %}
 
 {% block content %}
+<div class="container mt-5">
     <div class="row">
         <div class="col-md-6">
-            <h2>Crear Nueva Orden de Venta</h2>
-
-            <!-- Formulario de creación -->
-            <form method="post" action="{% url 'ordenventa-crud' %}" class="mt-4">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn btn-primary">Guardar</button>
-            </form>
+            <div class="card">
+                <div class="card-header">
+                    <h2>Crear Nueva Orden de Venta</h2>
+                </div>
+                <div class="card-body">
+                    <!-- Formulario de creación -->
+                    <form method="post" action="{% url 'ordenventa-crud' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            {{ form.as_p }}
+                        </div>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </form>
+                </div>
+            </div>
         </div>
         <div class="col-md-6">
-            <h1>Ordenes de Venta</h1>
-
+            <h2>Órdenes de Venta</h2>
             <!-- Lista de órdenes de venta -->
-            <ul class="list-group mt-4">
+            <div class="list-group mt-3">
                 {% for orden_venta in ordenes_venta %}
-                    <li class="list-group-item">
-                        {{ orden_venta.codigosap }} - {{ orden_venta.observacion }} - {{ orden_venta.proyecto }} 
-                        (<a href="{% url 'ordenventa-crud' %}?action=edit&edit={{ orden_venta.id }}" class="btn btn-warning btn-sm">Editar</a>)
-                        (<a href="{% url 'ordenventa-crud' %}?action=delete&delete={{ orden_venta.id }}" class="btn btn-danger btn-sm">Eliminar</a>)
-                        (<a href="{% url 'procesar_orden_venta_excel' ordenventa_id=orden_venta.id %}" class="btn btn-success btn-sm">Crear ítem</a>)
-                        (<a href="{% url 'ver_items_orden_venta' ordenventa_id=orden_venta.id %}" class="btn btn-info btn-sm">Procesar</a>)
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
-        <div class="col-md-6">
-            <h1>Ordenes de Venta</h1>
-        
-            <!-- Lista de órdenes de venta -->
-            {% for orden_venta in ordenes_venta %}
-                <ol class="breadcrumb mt-4">
-                    <li class="breadcrumb-item"><a href="#">Home</a></li>
-                    <li class="breadcrumb-item"><a href="#">Library</a></li>
-                    <li class="breadcrumb-item active">{{ orden_venta.codigosap }} - {{ orden_venta.observacion }} - {{ orden_venta.proyecto }}</li>
-                </ol>
-                <ul class="list-group">
-                    <li class="list-group-item">
-                        <a href="{% url 'ordenventa-crud' %}?action=edit&edit={{ orden_venta.id }}" class="btn btn-warning btn-sm">Editar</a>
-                        <a href="{% url 'ordenventa-crud' %}?action=delete&delete={{ orden_venta.id }}" class="btn btn-danger btn-sm">Eliminar</a>
-                        <a href="{% url 'procesar_orden_venta_excel' ordenventa_id=orden_venta.id %}" class="btn btn-success btn-sm">Crear ítem</a>
+                <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    {{ orden_venta.codigosap }} - {{ orden_venta.observacion }} - {{ orden_venta.proyecto }}
+                    <span>
+                        <a href="{% url 'ordenventa-crud' %}?action=edit&edit={{ orden_venta.id }}" class="btn btn-warning btn-sm me-1">Editar</a>
+                        <a href="{% url 'ordenventa-crud' %}?action=delete&delete={{ orden_venta.id }}" class="btn btn-danger btn-sm me-1">Eliminar</a>
+                        <a href="{% url 'procesar_orden_venta_excel' ordenventa_id=orden_venta.id %}" class="btn btn-success btn-sm me-1">Crear ítem</a>
                         <a href="{% url 'ver_items_orden_venta' ordenventa_id=orden_venta.id %}" class="btn btn-info btn-sm">Procesar</a>
-                    </li>
-                </ul>
-            {% endfor %}
+                    </span>
+                </a>
+                {% endfor %}
+            </div>
         </div>
-        <div class="col-md-6">
-            <h1>Ordenes de Venta</h1>
-        
-            <!-- Lista de órdenes de venta -->
-            {% for orden_venta in ordenes_venta %}
-                <ol class="breadcrumb mt-2">    
-                    <li class="breadcrumb-item active">{{ orden_venta.codigosap }} - {{ orden_venta.observacion }} - {{ orden_venta.proyecto }}</li>
-                    <li class="breadcrumb-item"><a href="{% url 'ordenventa-crud' %}?action=edit&edit={{ orden_venta.id }}">Editar</a></li>
-                    <li class="breadcrumb-item"><a href="{% url 'ordenventa-crud' %}?action=delete&delete={{ orden_venta.id }}">Eliminar</a></li>
-                    <li class="breadcrumb-item"><a href="{% url 'procesar_orden_venta_excel' ordenventa_id=orden_venta.id %}">Crear ítem</a></li>
-                    <li class="breadcrumb-item"><a href="{% url 'ver_items_orden_venta' ordenventa_id=orden_venta.id %}">Procesar</a></li>
-                </ol>
-            {% endfor %}
-        </div>
-        
     </div>
+</div>
 {% endblock %}
-
