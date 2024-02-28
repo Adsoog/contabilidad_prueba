@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Órdenes de Compra para la Orden de Venta {{ ordenventa.codigosap }}</h2>
+
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Descripción del Artículo</th>
+                <th>Cantidad</th>
+                <th>Código SAP</th>
+                <th>Precio Actual</th>
+                <th>IGV (%)</th>
+                <th>Detracción (%)</th>
+                <th>Precio Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for orden in ordenes_compra %}
+            <tr hx-get="{% url 'actualizar_orden_compra' orden.id %}" hx-target="this" hx-swap="outerHTML">
+                <td>{{ orden.desc_articulo }}</td>
+                <td><input type="number" name="cantidad" value="{{ orden.cantidad }}" hx-trigger="change" /></td>
+                <td>{{ orden.codigo_sap }}</td>
+                <td><input type="number" name="precio_actual" value="{{ orden.precio_actual }}" hx-trigger="change" /></td>
+                <td><input type="number" name="igv" value="{{ orden.igv }}" hx-trigger="change" /></td>
+                <td><input type="number" name="detraccion" value="{{ orden.detraccion }}" hx-trigger="change" /></td>
+                <td>{{ orden.precio_total }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7">No hay órdenes de compra para esta orden de venta.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,7 +1,7 @@
 from rest_framework import generics
 from django.http import HttpResponse, JsonResponse
 from inventario.models import Inventario
-from .models import OrdenVenta, ItemOrdenVenta
+from .models import OrdenDeCompra, OrdenVenta, ItemOrdenVenta
 from .serializers import OrdenVentaSerializer, ItemOrdenVentaSerializer
 from django.shortcuts import redirect, render, get_object_or_404
 from django.views import View
@@ -170,7 +170,41 @@ def ver_items_enviados_orden_venta(request, ordenventa_id):
     )
 
 
-# REDIRIGIR LOS ITEMS
+# ORDEN AUTOMATICAS
+def ver_ordenes_compra(request, ordenventa_id):
+    ordenventa = get_object_or_404(OrdenVenta, pk=ordenventa_id)
+    ordenes_compra = OrdenDeCompra.objects.filter(
+        item_orden_venta__ordenventa=ordenventa
+    )
+    return render(
+        request,
+        "ver_orden_compra.html",
+        {"ordenes_compra": ordenes_compra, "ordenventa": ordenventa},
+    )
+
+
+# mas ordenes automaticas :P
+def actualizar_orden_de_compra(request, id):
+    if request.method == "POST":
+        orden_de_compra = get_object_or_404(OrdenDeCompra, pk=id)
+
+        # Asegúrate de actualizar los campos de orden_de_compra con los datos recibidos
+        orden_de_compra.cantidad = request.POST.get(
+            "cantidad", orden_de_compra.cantidad
+        )
+        orden_de_compra.precio_actual = request.POST.get(
+            "precio_actual", orden_de_compra.precio_actual
+        )
+        orden_de_compra.igv = request.POST.get("igv", orden_de_compra.igv)
+        orden_de_compra.detraccion = request.POST.get(
+            "detraccion", orden_de_compra.detraccion
+        )
+
+        orden_de_compra.save()
+
+        # En lugar de redirigir, devuelve un fragmento de HTML o texto para actualizar la página
+        return HttpResponse(f"{orden_de_compra.precio_total}")
+
 
 # desde aqui no hay nada interesante :P
 

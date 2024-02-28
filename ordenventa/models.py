@@ -1,7 +1,9 @@
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
-# Create your models here.
+# Definición de los modelos
 class OrdenVenta(models.Model):
     codigosap = models.CharField(max_length=50)
     proyecto = models.CharField(max_length=255)
@@ -29,15 +31,14 @@ class ItemOrdenVenta(models.Model):
 
 
 class OrdenDeCompra(models.Model):
+    item_orden_venta = models.OneToOneField(
+        ItemOrdenVenta, on_delete=models.CASCADE, related_name="orden_de_compra"
+    )
     desc_articulo = models.CharField(max_length=50)
     cantidad = models.IntegerField()
-    codigo_sap = models.CharField(
-        max_length=50
-    )  # Suponiendo que este es el campo adicional
+    codigo_sap = models.CharField(max_length=50)
     precio_actual = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    igv = models.DecimalField(
-        max_digits=5, decimal_places=2, default=0
-    )  # Porcentaje, ej. 18 para 18%
+    igv = models.DecimalField(max_digits=5, decimal_places=2, default=0)  # Porcentaje
     detraccion = models.DecimalField(
         max_digits=5, decimal_places=2, default=0
     )  # Porcentaje
@@ -46,13 +47,27 @@ class OrdenDeCompra(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        # Calculamos el precio total aquí
-        base = self.cantidad * self.precio_actual
-        igv_total = base * (self.igv / 100)
-        detraccion_total = base * (self.detraccion / 100)
-        self.precio_total = base + igv_total - detraccion_total
-
-        super().save(*args, **kwargs)  # No olvides llamar al método save del padre!
+        self.precio_total = self.cantidad * self.precio_actual * (
+            1 + self.igv / 100
+        ) - (self.cantidad * self.precio_actual * self.detraccion / 100)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.desc_articulo} - {self.cantidad} - {self.codigo_sap}"
+
+
+# Señal para crear o actualizar OrdenDeCompra cuando se guarda un ItemOrdenVenta
+@receiver(post_save, sender=ItemOrdenVenta)
+def create_or_update_orden_de_compra(sender, instance, created, **kwargs):
+    OrdenDeCompra.objects.update_or_create(
+        item_orden_venta=instance,
+        defaults={
+            "desc_articulo": instance.desc_articulo,
+            "cantidad": instance.cantidad,
+            "codigo_sap": instance.ordenventa.codigosap,
+            "precio_actual": 0,  # Asumiendo un valor por defecto
+            "igv": 0,  # Valor por defecto, actualizable posteriormente
+            "detraccion": 0,  # Valor por defecto, actualizable posteriormente
+            # No es necesario definir precio_total aquí ya que se calcula en el método save de OrdenDeCompra
+        },
+    )

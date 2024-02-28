@@ -5,11 +5,13 @@ from .views import (
     ListaItemsOrdenVenta,
     DetalleItemOrdenVenta,
     OrdenVentaCRUDView,
+    actualizar_orden_de_compra,
     procesar_orden_venta_excel,
     ver_items_orden_venta,
     procesar_seleccion,
     ver_items_enviados_orden_venta,
     ver_items_orden_venta2,
+    ver_ordenes_compra,
 )
 
 urlpatterns = [
@@ -50,5 +52,16 @@ urlpatterns = [
         "procesar_seleccion/<int:ordenventa_id>/",
         procesar_seleccion,
         name="procesar_seleccion",
+    ),
+    # nolose rick y mas ordenes automaticas
+    path(
+        "ordenes-compra/<int:ordenventa_id>/",
+        ver_ordenes_compra,
+        name="ver_ordenes_compra",
+    ),
+    path(
+        "orden-compra/actualizar/<int:id>/",
+        actualizar_orden_de_compra,
+        name="actualizar_orden_compra",
     ),
 ]

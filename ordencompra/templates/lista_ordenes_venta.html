@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    <h1>Órdenes de Venta</h1>
+    <ul>
+        {% for orden_venta in ordenes_venta %}
+            <li>
+                {{ orden_venta.codigosap }} - {{ orden_venta.proyecto }}
+                <a href="{% url 'detalle_orden_compra' orden_venta.pk %}">Ver Órdenes de Compra</a>
+            </li>
+        {% endfor %}
+    </ul>
+
+{% endblock %}
+
+

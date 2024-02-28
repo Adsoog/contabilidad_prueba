@@ -3,6 +3,11 @@
 {% block content %}
 <h1 class="mb-4">Items de la Orden de Venta {{ ordenventa }}</h1>
 
+<!-- Botón para ver las órdenes de compra relacionadas -->
+<button type="button" class="btn btn-primary" onclick="location.href='{% url 'ver_ordenes_compra' ordenventa.id %}'">Ver Órdenes de Compra</button>
+<a href="{% url 'ver_ordenes_compra' ordenventa.id %} class="btn btn-info btn-sm">Procesar</a>
+
+
 <!-- Contenido previamente en el modal: Tabla de Precios ahora fuera -->
 <div class="table-responsive">
     <!-- Clase table-responsive para hacer la tabla responsive -->
