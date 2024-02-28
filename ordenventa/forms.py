@@ -6,7 +6,7 @@ from crispy_forms.layout import Layout, Submit, Row, Column
 class OrdenVentaForm(forms.ModelForm):
     fecha = forms.DateField(
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
-    )
+    )   
     class Meta:
         model = OrdenVenta
         fields = ["codigosap", "proyecto", "direccion_proyecto", "observacion", "fecha"]

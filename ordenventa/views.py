@@ -174,7 +174,8 @@ def ver_items_enviados_orden_venta(request, ordenventa_id):
 def ver_ordenes_compra(request, ordenventa_id):
     ordenventa = get_object_or_404(OrdenVenta, pk=ordenventa_id)
     ordenes_compra = OrdenDeCompra.objects.filter(
-        item_orden_venta__ordenventa=ordenventa
+        item_orden_venta__ordenventa=ordenventa,
+        #item_orden_venta__enviado=True  # Añade este filtro
     )
     return render(
         request,
@@ -188,22 +189,29 @@ def actualizar_orden_de_compra(request, id):
     if request.method == "POST":
         orden_de_compra = get_object_or_404(OrdenDeCompra, pk=id)
 
-        # Asegúrate de actualizar los campos de orden_de_compra con los datos recibidos
-        orden_de_compra.cantidad = request.POST.get(
-            "cantidad", orden_de_compra.cantidad
-        )
-        orden_de_compra.precio_actual = request.POST.get(
-            "precio_actual", orden_de_compra.precio_actual
-        )
-        orden_de_compra.igv = request.POST.get("igv", orden_de_compra.igv)
-        orden_de_compra.detraccion = request.POST.get(
-            "detraccion", orden_de_compra.detraccion
-        )
+        cantidad = request.POST.get("cantidad", "")
+        precio_actual = request.POST.get("precio_actual", "")
+        igv = request.POST.get("igv", "")
+        detraccion = request.POST.get("detraccion", "")
+
+        # Asegurarse de convertir a tipos numéricos antes de realizar cálculos
+        try:
+            orden_de_compra.cantidad = float(cantidad) if cantidad else orden_de_compra.cantidad
+            orden_de_compra.precio_actual = float(precio_actual) if precio_actual else orden_de_compra.precio_actual
+            orden_de_compra.igv = float(igv) if igv else orden_de_compra.igv
+            orden_de_compra.detraccion = float(detraccion) if detraccion else orden_de_compra.detraccion
+        except ValueError:
+            # Aquí puedes manejar el error o devolver un mensaje al usuario
+            pass
 
         orden_de_compra.save()
-
-        # En lugar de redirigir, devuelve un fragmento de HTML o texto para actualizar la página
         return HttpResponse(f"{orden_de_compra.precio_total}")
+
+        # Continúa con la lógica para devolver la respuesta adecuada...
+    else:
+        # Puedes ajustar esta respuesta según lo que sea más adecuado para tu aplicación
+        return HttpResponse("Método no permitido", status=405)
+
 
 
 # desde aqui no hay nada interesante :P

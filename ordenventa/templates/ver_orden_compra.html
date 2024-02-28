@@ -1,6 +1,20 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<style>
+    /* Estilos para hacer que el encabezado de la tabla sea fijo */
+    .table-responsive thead th {
+        position: sticky;
+        top: 0;
+        background-color: #fff; /* Fondo blanco o cualquier color que coincida con tu diseño */
+        z-index: 1; /* Asegura que el encabezado se muestre sobre el contenido al desplazarse */
+    }
+    /* Asegúrate de que la tabla sea lo suficientemente alta para desplazarse */
+    .table-responsive {
+        max-height: 80vh; /* Ajusta según tus necesidades */
+        overflow-y: auto;
+    }
+</style>
 <h2>Órdenes de Compra para la Orden de Venta {{ ordenventa.codigosap }}</h2>
 
 <div class="table-responsive">
@@ -14,22 +28,25 @@
                 <th>IGV (%)</th>
                 <th>Detracción (%)</th>
                 <th>Precio Total</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
             {% for orden in ordenes_compra %}
-            <tr hx-get="{% url 'actualizar_orden_compra' orden.id %}" hx-target="this" hx-swap="outerHTML">
-                <td>{{ orden.desc_articulo }}</td>
-                <td><input type="number" name="cantidad" value="{{ orden.cantidad }}" hx-trigger="change" /></td>
-                <td>{{ orden.codigo_sap }}</td>
-                <td><input type="number" name="precio_actual" value="{{ orden.precio_actual }}" hx-trigger="change" /></td>
-                <td><input type="number" name="igv" value="{{ orden.igv }}" hx-trigger="change" /></td>
-                <td><input type="number" name="detraccion" value="{{ orden.detraccion }}" hx-trigger="change" /></td>
-                <td>{{ orden.precio_total }}</td>
-            </tr>
-            {% empty %}
             <tr>
-                <td colspan="7">No hay órdenes de compra para esta orden de venta.</td>
+                <td>{{ orden.desc_articulo }}</td>
+                <td><input form="form-{{ orden.id }}" type="number" name="cantidad" value="{{ orden.cantidad }}" /></td>
+                <td>{{ orden.codigo_sap }}</td>
+                <td><input form="form-{{ orden.id }}" type="number" name="precio_actual" value="{{ orden.precio_actual }}" /></td>
+                <td><input form="form-{{ orden.id }}" type="number" name="igv" value="{{ orden.igv }}" /></td>
+                <td><input form="form-{{ orden.id }}" type="number" name="detraccion" value="{{ orden.detraccion }}" /></td>
+                <td id="precio-total-{{ orden.id }}">{{ orden.precio_total }}</td>
+                <td>
+                    <form id="form-{{ orden.id }}" hx-post="{% url 'actualizar_orden_compra' orden.id %}" hx-target="#precio-total-{{ orden.id }}" hx-swap="outerHTML" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary">Actualizar</button>
+                    </form>
+                </td>
             </tr>
             {% endfor %}
         </tbody>

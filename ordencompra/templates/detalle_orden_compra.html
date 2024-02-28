@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 
-    <h1>Órdenes de Compra para {{ orden_venta.codigosap }} - {{ orden_venta.proyecto }}</h1>
+    <h1>Ordenes de Compra para {{ orden_venta.codigosap }} - {{ orden_venta.proyecto }}</h1>
     <ul>
         {% for orden_compra in ordenes_compra %}
             <li>{{ orden_compra.desc_articulo }} - Cantidad: {{ orden_compra.cantidad }} - Código SAP: {{ orden_compra.codigo_sap }}</li>

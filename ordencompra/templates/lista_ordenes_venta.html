@@ -5,8 +5,11 @@
     <ul>
         {% for orden_venta in ordenes_venta %}
             <li>
-                {{ orden_venta.codigosap }} - {{ orden_venta.proyecto }}
-                <a href="{% url 'detalle_orden_compra' orden_venta.pk %}">Ver Órdenes de Compra</a>
+                {{ orden_venta.codigosap }} - {{ orden_venta.proyecto }} - {{ orden_venta.observacion}}
+                <a href="{% url 'detalle_orden_compra' orden_venta.pk %}">Ver Órdenes de Compra antiguo</a>
+                <!-- Botón para ver las órdenes de compra relacionadas -->
+                <a href="{% url 'ver_ordenes_compra' orden_venta.id %}">Ver Órdenes de Compra nuevo</a>
+
             </li>
         {% endfor %}
     </ul>
