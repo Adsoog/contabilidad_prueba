@@ -214,7 +214,6 @@ def actualizar_orden_de_compra(request, id):
             )
             orden_de_compra.clase = clase if clase else orden_de_compra.clase
             # Asumiendo que tienes un campo para 'proveedor' y 'cuotas' en tu modelo OrdenDeCompra
-            orden_de_compra.proveedor = proveedor if proveedor else orden_de_compra.proveedor
             orden_de_compra.cuotas = int(cuotas) if cuotas else orden_de_compra.cuotas
 
 

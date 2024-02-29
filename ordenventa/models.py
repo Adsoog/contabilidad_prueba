@@ -50,6 +50,7 @@ class OrdenDeCompra(models.Model):
     igv = models.DecimalField(max_digits=5, decimal_places=2, default=0)  # Porcentaje
     detraccion = models.DecimalField(max_digits=5, decimal_places=2, default=0)  # Porcentaje
     precio_total = models.DecimalField(max_digits=10, decimal_places=2, editable=False, default=0)
+    cuotas = models.IntegerField(default=0)
     
     def save(self, *args, **kwargs):
         self.precio_total = self.cantidad * self.precio_actual * (

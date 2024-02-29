@@ -5,37 +5,45 @@
 {% block content %}
 <div class="container mt-5">
     <div class="row">
-        <div class="col-md-6">
+        <!-- Columna del Formulario de Creación -->
+        <div class="col-lg-6 mb-4">
             <div class="card">
-                {% load crispy_forms_tags %}
-            <div class="card-header">
-                <h2>Crear Nueva Orden de Venta</h2>
-            </div>
-            <div class="card-body">
-                <!-- Formulario de creación -->
-                <form method="post" action="{% url 'ordenventa-crud' %}">
-                    {% csrf_token %}
-                    <!-- Utiliza el filtro |crispy para renderizar el formulario con crispy forms -->
-                    {{ form|crispy }}
-                    <button type="submit" class="btn btn-primary">Guardar</button>
-                </form>
-            </div>
+                <div class="card-header">
+                    <h2>Crear Nueva Orden de Venta</h2>
+                </div>
+                <div class="card-body">
+                    <!-- Formulario de creación -->
+                    <form method="post" action="{% url 'ordenventa-crud' %}">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </form>
+                </div>
             </div>
         </div>
-        <div class="col-md-6">
+
+        <!-- Columna de Tarjetas de Órdenes de Venta -->
+        <div class="col-lg-6 mb-4">
             <h2>Órdenes de Venta</h2>
-            <!-- Lista de órdenes de venta -->
-            <div class="list-group mt-3">
+            <div class="row">
                 {% for orden_venta in ordenes_venta %}
-                <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                    {{ orden_venta.codigosap }} - {{ orden_venta.observacion }} - {{ orden_venta.proyecto }}
-                    <span>
-                        <a href="{% url 'ordenventa-crud' %}?action=edit&edit={{ orden_venta.id }}" class="btn btn-warning btn-sm me-1">Editar</a>
-                        <a href="{% url 'ordenventa-crud' %}?action=delete&delete={{ orden_venta.id }}" class="btn btn-danger btn-sm me-1">Eliminar</a>
-                        <a href="{% url 'procesar_orden_venta_excel' ordenventa_id=orden_venta.id %}" class="btn btn-success btn-sm me-1">Crear ítem</a>
-                        <a href="{% url 'ver_items_orden_venta' ordenventa_id=orden_venta.id %}" class="btn btn-info btn-sm">Procesar</a>
-                    </span>
-                </a>
+                <div class="col-md-6 col-lg-12 mb-4"> <!-- Ajusta las clases de columnas según prefieras -->
+                    <div class="card h-100">
+                        <div class="card-header">
+                            Orden Venta: {{ orden_venta.codigosap }}
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ orden_venta.proyecto }}</h5>
+                            <p class="card-text">{{ orden_venta.observacion }}</p>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url 'procesar_orden_venta_excel' ordenventa_id=orden_venta.id %}" class="btn btn-success btn-sm">Crear ítem</a>
+                            <a href="{% url 'ver_items_orden_venta' ordenventa_id=orden_venta.id %}" class="btn btn-info btn-sm">Procesar</a>
+                            <a href="{% url 'ordenventa-crud' %}?action=edit&edit={{ orden_venta.id }}" class="btn btn-warning btn-sm">Editar</a>
+                            <a href="{% url 'ordenventa-crud' %}?action=delete&delete={{ orden_venta.id }}" class="btn btn-danger btn-sm">Eliminar</a>
+                        </div>
+                    </div>
+                </div>
                 {% endfor %}
             </div>
         </div>
