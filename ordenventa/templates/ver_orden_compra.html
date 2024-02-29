@@ -45,8 +45,6 @@
                 <th>Detracción (%)</th>
                 <th>Precio Total</th>
                 <th>Proveedor</th> <!-- Nueva columna Proveedor -->
-                <th>Banco</th> <!-- Nueva columna Banco -->
-                <th>Número Bancario</th> <!-- Nueva columna Número Bancario -->
                 <th>Cuotas</th> <!-- Nueva columna Cuotas -->
                 <th>Acciones</th>
             </tr>
@@ -54,7 +52,8 @@
         <tbody>
             {% for orden in ordenes_compra %}
             <tr>
-                <td><input class="input-corto" type="text" name="clase" value="{{ orden.clase }}" placeholder="Clase"></td> <!-- Asumiendo que existe 'clase' en tus datos -->
+                <td><input class="input-corto" type="text" name="clase" value="{{ orden.clase }}" placeholder="Clase" form="form-{{ orden.id }}"></td>
+<!-- Asumiendo que existe 'clase' en tus datos -->
                 <td>{{ orden.desc_articulo }}</td>
                 <td><input class="input-corto" form="form-{{ orden.id }}" type="number" name="cantidad" value="{{ orden.cantidad }}" /></td>
                 <td>{{ orden.codigo_sap }}</td>
@@ -62,10 +61,8 @@
                 <td><input class="input-corto" form="form-{{ orden.id }}" type="number" name="igv" value="{{ orden.igv }}" /></td>
                 <td><input class="input-corto" form="form-{{ orden.id }}" type="number" name="detraccion" value="{{ orden.detraccion }}" /></td>
                 <td id="precio-total-{{ orden.id }}">{{ orden.precio_total }}</td>
-                <td> <input type="text" name="proveedor" value="{{ orden.proveedor }}" placeholder="Proveedor"></td> <!-- Datos de Proveedor -->
-                <td><input class="input-corto" type="text" name="banco" value="{{ orden.banco }}" placeholder="Banco"></td> <!-- Datos de Banco -->
-                <td><input class="input-medio" type="text" name="numero_bancario" value="{{ orden.numero_bancario }}" placeholder="Número Bancario"></td> <!-- Datos de Número Bancario -->
-                <td><input class="input-corto"  type="number" name="cuotas" value="{{ orden.cuotas }}" placeholder="Cuotas"></td> <!-- Datos de Cuotas -->
+                <td> proveedor</td> <!-- Datos de Proveedor --> <!-- Datos de Número Bancario -->
+                <td><input class="input-corto" form="form-{{ orden.id }}" type="number" name="cuotas" value="{{ orden.cuotas }}"></td>
                 <td>
                     <form id="form-{{ orden.id }}" hx-post="{% url 'actualizar_orden_compra' orden.id %}" hx-target="#precio-total-{{ orden.id }}" hx-swap="outerHTML" method="post">
                         {% csrf_token %}

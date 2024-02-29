@@ -198,8 +198,6 @@ def actualizar_orden_de_compra(request, id):
         # Nuevos campos
         clase = request.POST.get("clase", "")
         proveedor = request.POST.get("proveedor", "")
-        banco = request.POST.get("banco", "")
-        numero_bancario = request.POST.get("numero_bancario", "")
         cuotas = request.POST.get("cuotas", "")
 
         # Asegurarse de convertir a tipos numéricos antes de realizar cálculos
@@ -214,17 +212,11 @@ def actualizar_orden_de_compra(request, id):
             orden_de_compra.detraccion = (
                 float(detraccion) if detraccion else orden_de_compra.detraccion
             )
-
-            # Actualizar nuevos campos, asumiendo que son cadenas de texto
             orden_de_compra.clase = clase if clase else orden_de_compra.clase
-            orden_de_compra.proveedor = (
-                proveedor if proveedor else orden_de_compra.proveedor
-            )
-            orden_de_compra.banco = banco if banco else orden_de_compra.banco
-            orden_de_compra.numero_bancario = (
-                numero_bancario if numero_bancario else orden_de_compra.numero_bancario
-            )
+            # Asumiendo que tienes un campo para 'proveedor' y 'cuotas' en tu modelo OrdenDeCompra
+            orden_de_compra.proveedor = proveedor if proveedor else orden_de_compra.proveedor
             orden_de_compra.cuotas = int(cuotas) if cuotas else orden_de_compra.cuotas
+
 
         except ValueError:
             # Aquí puedes manejar el error o devolver un mensaje al usuario
