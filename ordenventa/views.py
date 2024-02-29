@@ -242,7 +242,8 @@ def actualizar_orden_de_compra(request, id):
 
 # ordenes d epago :)
 def ver_ordenes_pago(request):
-    ordenes_de_pago = OrdenDeCompra.objects.all()
+    # Filtra las OrdenDeCompra por aquellas con el campo 'precio_total' mayor a 0.0
+    ordenes_de_pago = OrdenDeCompra.objects.filter(precio_total__gt=0.00)
     context = {"ordenes_de_pago": ordenes_de_pago}
     return render(request, "ver_orden_pago.html", context)
 
