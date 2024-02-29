@@ -2,25 +2,41 @@
 
 {% block content %}
 <style>
-    /* Estilos para hacer que el encabezado de la tabla sea fijo */
+    /* Estilos existentes */
     .table-responsive thead th {
         position: sticky;
         top: 0;
-        background-color: #fff; /* Fondo blanco o cualquier color que coincida con tu diseño */
-        z-index: 1; /* Asegura que el encabezado se muestre sobre el contenido al desplazarse */
+        background-color: #fff;
+        z-index: 1;
     }
-    /* Asegúrate de que la tabla sea lo suficientemente alta para desplazarse */
     .table-responsive {
-        max-height: 80vh; /* Ajusta según tus necesidades */
+        max-height: 80vh;
         overflow-y: auto;
     }
+    .input-corto {
+        width: 70px;
+    }
+    .input-medio {
+        width: 120px;
+    }
+    input[type="number"] {
+        text-align: right;
+    }
+    .table th, .table td {
+        padding: 1px;
+        white-space: nowrap;
+    }
 </style>
-<h2>Órdenes de Compra para la Orden de Venta {{ ordenventa.codigosap }}</h2>
+<h2>Órdenes de Compra para {{ ordenventa.observacion }} - {{ ordenventa.proyecto}} </h2>
+<div style="margin-bottom: 20px;">
+    <a href="{% url 'ver_ordenes_pago' %}" class="btn btn-info">Ver Órdenes de Pago</a>
+</div>
 
 <div class="table-responsive">
     <table class="table">
         <thead>
             <tr>
+                <th>Clase</th> <!-- Nueva columna Clase -->
                 <th>Descripción del Artículo</th>
                 <th>Cantidad</th>
                 <th>Código SAP</th>
@@ -28,23 +44,32 @@
                 <th>IGV (%)</th>
                 <th>Detracción (%)</th>
                 <th>Precio Total</th>
+                <th>Proveedor</th> <!-- Nueva columna Proveedor -->
+                <th>Banco</th> <!-- Nueva columna Banco -->
+                <th>Número Bancario</th> <!-- Nueva columna Número Bancario -->
+                <th>Cuotas</th> <!-- Nueva columna Cuotas -->
                 <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
             {% for orden in ordenes_compra %}
             <tr>
+                <td><input class="input-corto" type="text" name="clase" value="{{ orden.clase }}" placeholder="Clase"></td> <!-- Asumiendo que existe 'clase' en tus datos -->
                 <td>{{ orden.desc_articulo }}</td>
-                <td><input form="form-{{ orden.id }}" type="number" name="cantidad" value="{{ orden.cantidad }}" /></td>
+                <td><input class="input-corto" form="form-{{ orden.id }}" type="number" name="cantidad" value="{{ orden.cantidad }}" /></td>
                 <td>{{ orden.codigo_sap }}</td>
-                <td><input form="form-{{ orden.id }}" type="number" name="precio_actual" value="{{ orden.precio_actual }}" /></td>
-                <td><input form="form-{{ orden.id }}" type="number" name="igv" value="{{ orden.igv }}" /></td>
-                <td><input form="form-{{ orden.id }}" type="number" name="detraccion" value="{{ orden.detraccion }}" /></td>
+                <td><input class="input-medio" form="form-{{ orden.id }}" type="number" name="precio_actual" value="{{ orden.precio_actual }}" /></td>
+                <td><input class="input-corto" form="form-{{ orden.id }}" type="number" name="igv" value="{{ orden.igv }}" /></td>
+                <td><input class="input-corto" form="form-{{ orden.id }}" type="number" name="detraccion" value="{{ orden.detraccion }}" /></td>
                 <td id="precio-total-{{ orden.id }}">{{ orden.precio_total }}</td>
+                <td> <input type="text" name="proveedor" value="{{ orden.proveedor }}" placeholder="Proveedor"></td> <!-- Datos de Proveedor -->
+                <td><input class="input-corto" type="text" name="banco" value="{{ orden.banco }}" placeholder="Banco"></td> <!-- Datos de Banco -->
+                <td><input class="input-medio" type="text" name="numero_bancario" value="{{ orden.numero_bancario }}" placeholder="Número Bancario"></td> <!-- Datos de Número Bancario -->
+                <td><input class="input-corto"  type="number" name="cuotas" value="{{ orden.cuotas }}" placeholder="Cuotas"></td> <!-- Datos de Cuotas -->
                 <td>
                     <form id="form-{{ orden.id }}" hx-post="{% url 'actualizar_orden_compra' orden.id %}" hx-target="#precio-total-{{ orden.id }}" hx-swap="outerHTML" method="post">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-primary">Actualizar</button>
+                        <button type="submit" class="btn btn-primary">ACT</button>
                     </form>
                 </td>
             </tr>

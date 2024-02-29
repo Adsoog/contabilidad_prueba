@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<h1>Ordenes de Pago</h1>
+<table border="1">
+    <thead>
+        <tr>
+            <th>Descripción</th>
+            <th>Código SAP</th>
+            <th>Precio Total</th>
+            <th>Proveedor</th>
+            <th>Banco</th>
+            <th>Número Bancario</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for orden in ordenes_de_pago %}
+        <tr>
+            <td>{{ orden.desc_articulo }}</td>
+            <td>{{ orden.codigo_sap }}</td>
+            <td>{{ orden.precio_total }}</td>
+            <td>{{ orden.proveedor }}</td>
+            <td>{{ orden.banco }}</td>
+            <td>{{ orden.numero_bancario }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+{% endblock %}

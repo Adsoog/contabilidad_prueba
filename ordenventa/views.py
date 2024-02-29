@@ -175,7 +175,7 @@ def ver_ordenes_compra(request, ordenventa_id):
     ordenventa = get_object_or_404(OrdenVenta, pk=ordenventa_id)
     ordenes_compra = OrdenDeCompra.objects.filter(
         item_orden_venta__ordenventa=ordenventa,
-        #item_orden_venta__enviado=True  # Añade este filtro
+        # item_orden_venta__enviado=True  # Añade este filtro
     )
     return render(
         request,
@@ -189,29 +189,62 @@ def actualizar_orden_de_compra(request, id):
     if request.method == "POST":
         orden_de_compra = get_object_or_404(OrdenDeCompra, pk=id)
 
+        # Campos existentes
         cantidad = request.POST.get("cantidad", "")
         precio_actual = request.POST.get("precio_actual", "")
         igv = request.POST.get("igv", "")
         detraccion = request.POST.get("detraccion", "")
 
+        # Nuevos campos
+        clase = request.POST.get("clase", "")
+        proveedor = request.POST.get("proveedor", "")
+        banco = request.POST.get("banco", "")
+        numero_bancario = request.POST.get("numero_bancario", "")
+        cuotas = request.POST.get("cuotas", "")
+
         # Asegurarse de convertir a tipos numéricos antes de realizar cálculos
         try:
-            orden_de_compra.cantidad = float(cantidad) if cantidad else orden_de_compra.cantidad
-            orden_de_compra.precio_actual = float(precio_actual) if precio_actual else orden_de_compra.precio_actual
+            orden_de_compra.cantidad = (
+                int(cantidad) if cantidad else orden_de_compra.cantidad
+            )
+            orden_de_compra.precio_actual = (
+                float(precio_actual) if precio_actual else orden_de_compra.precio_actual
+            )
             orden_de_compra.igv = float(igv) if igv else orden_de_compra.igv
-            orden_de_compra.detraccion = float(detraccion) if detraccion else orden_de_compra.detraccion
+            orden_de_compra.detraccion = (
+                float(detraccion) if detraccion else orden_de_compra.detraccion
+            )
+
+            # Actualizar nuevos campos, asumiendo que son cadenas de texto
+            orden_de_compra.clase = clase if clase else orden_de_compra.clase
+            orden_de_compra.proveedor = (
+                proveedor if proveedor else orden_de_compra.proveedor
+            )
+            orden_de_compra.banco = banco if banco else orden_de_compra.banco
+            orden_de_compra.numero_bancario = (
+                numero_bancario if numero_bancario else orden_de_compra.numero_bancario
+            )
+            orden_de_compra.cuotas = int(cuotas) if cuotas else orden_de_compra.cuotas
+
         except ValueError:
             # Aquí puedes manejar el error o devolver un mensaje al usuario
-            pass
+            return HttpResponse("Error en los datos proporcionados", status=400)
 
         orden_de_compra.save()
-        return HttpResponse(f"{orden_de_compra.precio_total}")
+        return HttpResponse(
+            f"Orden de compra actualizada: {orden_de_compra.precio_total}"
+        )
 
-        # Continúa con la lógica para devolver la respuesta adecuada...
     else:
         # Puedes ajustar esta respuesta según lo que sea más adecuado para tu aplicación
         return HttpResponse("Método no permitido", status=405)
 
+
+# ordenes d epago :)
+def ver_ordenes_pago(request):
+    ordenes_de_pago = OrdenDeCompra.objects.all()
+    context = {"ordenes_de_pago": ordenes_de_pago}
+    return render(request, "ver_orden_pago.html", context)
 
 
 # desde aqui no hay nada interesante :P

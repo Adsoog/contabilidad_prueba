@@ -34,6 +34,9 @@ class OrdenDeCompra(models.Model):
     item_orden_venta = models.OneToOneField(
         ItemOrdenVenta, on_delete=models.CASCADE, related_name="orden_de_compra"
     )
+    clase = models.CharField(
+        max_length=50, default=""
+    )  # Campo opcional con valor predeterminado vacío
     desc_articulo = models.CharField(max_length=50)
     cantidad = models.IntegerField()
     codigo_sap = models.CharField(max_length=50)
@@ -45,6 +48,18 @@ class OrdenDeCompra(models.Model):
     precio_total = models.DecimalField(
         max_digits=10, decimal_places=2, editable=False, default=0
     )
+    proveedor = models.CharField(
+        max_length=100, default=""
+    )  # Campo opcional con valor predeterminado vacío
+    banco = models.CharField(
+        max_length=100, default=""
+    )  # Campo opcional con valor predeterminado vacío
+    numero_bancario = models.CharField(
+        max_length=50, default=""
+    )  # Campo opcional con valor predeterminado vacío
+    cuotas = models.IntegerField(
+        default=0, blank=True, null=True
+    )  # Campo opcional que puede ser nulo
 
     def save(self, *args, **kwargs):
         self.precio_total = self.cantidad * self.precio_actual * (
