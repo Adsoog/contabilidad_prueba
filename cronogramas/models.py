@@ -10,7 +10,7 @@ from dateutil.relativedelta import relativedelta
 class Cronograma(models.Model):
     fecha_inicio = models.DateField()
     fecha_desembolso = models.DateField()
-    entidad_bancaria = models.CharField(max_length=100)
+    entidad = models.CharField(max_length=100)
     moneda = models.CharField(max_length=50)
     numero_cuotas = models.PositiveIntegerField()
     monto_cuota = models.DecimalField(max_digits=15, decimal_places=2)
@@ -21,7 +21,7 @@ class Cronograma(models.Model):
     doc = models.FileField(upload_to="pdf/", null=True, blank=True, default=None)
 
     def __str__(self):
-        return f"Cronograma {self.id} - {self.entidad_bancaria} - {self.detalle}"
+        return f"Cronograma {self.id} - {self.entidad} - {self.detalle}"
 
 
 class PagoCronograma(models.Model):
@@ -29,7 +29,7 @@ class PagoCronograma(models.Model):
     fecha_pago = models.DateField()
     monto_pago = models.DecimalField(max_digits=15, decimal_places=2)
     pdf_pago = models.FileField(
-        upload_to="pagos_pdfs/"
+        upload_to="pagos_pdfs/", null=True, blank=True, default=None
     )  # Campo para guardar archivos PDF de pagos
 
     def __str__(self):

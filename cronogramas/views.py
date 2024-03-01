@@ -7,16 +7,16 @@ from .forms import EditarFechaPagoForm, EditarMontoForm, CambiarPDFPagoForm
 from .models import PagoCronograma
 from cronogramas.models import Cronograma, PagoCronograma
 from .forms import CronogramaForm  # Importa el formulario de Cronograma
+from django.urls import reverse
 
 
 def crear_cronograma(request):
     if request.method == "POST":
-        form = CronogramaForm(request.POST)
+        # Modifica esta línea para incluir request.FILES
+        form = CronogramaForm(request.POST, request.FILES)
         if form.is_valid():
             cronograma = form.save()  # Guarda el cronograma y obtén el objeto creado
-            return redirect(
-                "ver_pagos_cronograma", cronograma_id=cronograma.id
-            )  # Redirige a la vista de pagos del nuevo cronograma
+            return redirect("ver_pagos_cronograma", cronograma_id=cronograma.id)
     else:
         form = CronogramaForm()
     return render(request, "crear_cronograma.html", {"form": form})
@@ -48,9 +48,9 @@ def ver_cronogramas(request):
 
 def ver_cronogramas_filtrados(request, tipo):
     if tipo == "sunat":
-        cronogramas = Cronograma.objects.filter(entidad_bancaria__icontains="SUNAT")
+        cronogramas = Cronograma.objects.filter(entidad__icontains="SUNAT")
     else:
-        cronogramas = Cronograma.objects.exclude(entidad_bancaria__icontains="SUNAT")
+        cronogramas = Cronograma.objects.exclude(entidad__icontains="SUNAT")
 
     return render(request, "ver_cronogramas.html", {"cronogramas": cronogramas})
 
@@ -80,8 +80,11 @@ def cambiar_pdf_pago(request, pago_id):
     form = CambiarPDFPagoForm(request.POST, request.FILES, instance=pago)
     if form.is_valid():
         form.save()
-        return JsonResponse({"mensaje": "PDF actualizado correctamente"})
-    return JsonResponse({"error": "Datos del formulario no válidos"}, status=400)
+        # Asume que tienes el ID del cronograma disponible o puedes obtenerlo de `pago`
+        cronograma_id = pago.cronograma.id
+        return redirect(reverse('pagos_cronograma', args=[cronograma_id]))
+    else:
+        return JsonResponse({"error": "Datos del formulario no válidos"}, status=400)
 
 
 def editar_fecha_pago(request, pago_id):

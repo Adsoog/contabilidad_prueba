@@ -1,10 +1,8 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
-
-<h1>Ordenes de Pago</h1>
-<table border="1">
+<h1>Órdenes de Pago</h1>
+<table id="ordenesPagoTable" class="table table-striped table-bordered" style="width:100%">
     <thead>
         <tr>
             <th>Descripción</th>
@@ -29,5 +27,13 @@
     </tbody>
 </table>
 
-
+<script>
+$(document).ready(function() {
+    $('#ordenesPagoTable').DataTable({
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.22/i18n/Spanish.json"
+        }
+    });
+});
+</script>
 {% endblock %}

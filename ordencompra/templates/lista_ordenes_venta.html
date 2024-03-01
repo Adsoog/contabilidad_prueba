@@ -1,19 +1,25 @@
 {% extends 'base.html' %}
 {% block content %}
 
-    <h1>Órdenes de COMPRA</h1>
-    <ul>
-        {% for orden_venta in ordenes_venta %}
-            <li>
-                {{ orden_venta.codigosap }} - {{ orden_venta.proyecto }} - {{ orden_venta.observacion}}
-                <a href="{% url 'detalle_orden_compra' orden_venta.pk %}">Ver Órdenes de Compra antiguo</a>
-                <!-- Botón para ver las órdenes de compra relacionadas -->
-                <a href="{% url 'ver_ordenes_compra' orden_venta.id %}">Ver Órdenes de Compra nuevo</a>
-
-            </li>
-        {% endfor %}
-    </ul>
+<h1 class="mb-4">Órdenes de COMPRA</h1>
+<div class="container">
+    {% for orden_venta in ordenes_venta %}
+        <div class="card mb-2"> <!-- Reducir el margen entre tarjetas -->
+            <div class="card-body py-2"> <!-- Reducir el padding vertical para un diseño más compacto -->
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-0"> <!-- Usar h6 para un texto más pequeño -->
+                            {{ orden_venta.codigosap }} - {{ orden_venta.proyecto }} - {{ orden_venta.observacion }}
+                        </h6>
+                    </div>
+                    <div>
+                        <a href="{% url 'ver_ordenes_compra' orden_venta.id %}" class="btn btn-primary btn-sm ml-1">Ver Órdenes de Compra</a> <!-- Botones más pequeños -->
+                        <a href="{% url 'ver_ordenes_pago' %}" class="btn btn-info btn-sm ml-1">Ver Órdenes de Pago</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
 
 {% endblock %}
-
-

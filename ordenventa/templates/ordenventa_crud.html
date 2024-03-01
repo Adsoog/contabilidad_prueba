@@ -5,48 +5,61 @@
 {% block content %}
 <div class="container mt-5">
     <div class="row">
-        <!-- Columna del Formulario de Creación -->
-        <div class="col-lg-6 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    <h2>Crear Nueva Orden de Venta</h2>
-                </div>
-                <div class="card-body">
-                    <!-- Formulario de creación -->
-                    <form method="post" action="{% url 'ordenventa-crud' %}">
-                        {% csrf_token %}
-                        {{ form|crispy }}
-                        <button type="submit" class="btn btn-primary">Guardar</button>
-                    </form>
+        <div class="col-lg-12 d-flex justify-content-between align-items-center mb-4">
+            <h2>Órdenes de Venta</h2>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#crearOrdenVentaModal">
+                Crear Nueva Orden de Venta
+            </button>
+        </div>
+        <!-- Modal del Formulario de Creación -->
+        <div class="modal fade" id="crearOrdenVentaModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalLabel">Crear Nueva Orden de Venta</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="post" action="{% url 'ordenventa-crud' %}">
+                            {% csrf_token %}
+                            {{ form|crispy }}
+                            <button type="submit" class="btn btn-primary">Guardar</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Columna de Tarjetas de Órdenes de Venta -->
-        <div class="col-lg-6 mb-4">
-            <h2>Órdenes de Venta</h2>
-            <div class="row">
-                {% for orden_venta in ordenes_venta %}
-                <div class="col-md-6 col-lg-12 mb-4"> <!-- Ajusta las clases de columnas según prefieras -->
-                    <div class="card h-100">
-                        <div class="card-header">
-                            Orden Venta: {{ orden_venta.codigosap }}
-                        </div>
-                        <div class="card-body">
-                            <h5 class="card-title">{{ orden_venta.proyecto }}</h5>
-                            <p class="card-text">{{ orden_venta.observacion }}</p>
-                        </div>
-                        <div class="card-footer">
-                            <a href="{% url 'procesar_orden_venta_excel' ordenventa_id=orden_venta.id %}" class="btn btn-success btn-sm">Crear ítem</a>
-                            <a href="{% url 'ver_items_orden_venta' ordenventa_id=orden_venta.id %}" class="btn btn-info btn-sm">Procesar</a>
-                            <a href="{% url 'ordenventa-crud' %}?action=edit&edit={{ orden_venta.id }}" class="btn btn-warning btn-sm">Editar</a>
-                            <a href="{% url 'ordenventa-crud' %}?action=delete&delete={{ orden_venta.id }}" class="btn btn-danger btn-sm">Eliminar</a>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
+        <!-- Tabla de Órdenes de Venta -->
+        <div class="col-lg-12 mb-4">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Código SAP</th>
+                        <th>Proyecto</th>
+                        <th>Observación</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for orden_venta in ordenes_venta %}
+                    <tr>
+                        <td>{{ orden_venta.codigosap }}</td>
+                        <td>{{ orden_venta.proyecto }}</td>
+                        <td>{{ orden_venta.observacion }}</td>
+                        <td>
+                            <a href="{% url 'procesar_orden_venta_excel' ordenventa_id=orden_venta.id %}" class="btn btn-success btn-sm" title="Crear ítem"><i class="fas fa-plus"></i></a>
+                            <a href="{% url 'ver_items_orden_venta' ordenventa_id=orden_venta.id %}" class="btn btn-info btn-sm" title="Procesar"><i class="fas fa-cogs"></i></a>
+                            <a href="{% url 'ordenventa-crud' %}?action=edit&edit={{ orden_venta.id }}" class="btn btn-warning btn-sm" title="Editar"><i class="fas fa-edit"></i></a>
+                            <a href="{% url 'ordenventa-crud' %}?action=delete&delete={{ orden_venta.id }}" class="btn btn-danger btn-sm" title="Eliminar"><i class="fas fa-trash-alt"></i></a>
+                        </td>
+                        
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}

@@ -13,7 +13,7 @@
             <tr>
                 <th>ID Cronograma</th>
                 <th>Fecha Inicio</th>
-                <th>Entidad Bancaria</th>
+                <th>Entidad</th>
                 <th>Detalle</th>
                 <th>Fecha de Pago</th>
                 <th>Monto de Pago</th>
@@ -24,7 +24,7 @@
             <tr>
                 <td rowspan="{{ cronograma_con_pagos.pagos|length }}">{{ cronograma_con_pagos.cronograma.id }}</td>
                 <td rowspan="{{ cronograma_con_pagos.pagos|length }}">{{ cronograma_con_pagos.cronograma.fecha_inicio }}</td>
-                <td rowspan="{{ cronograma_con_pagos.pagos|length }}">{{ cronograma_con_pagos.cronograma.entidad_bancaria }}</td>
+                <td rowspan="{{ cronograma_con_pagos.pagos|length }}">{{ cronograma_con_pagos.cronograma.entidad }}</td>
                 <td rowspan="{{ cronograma_con_pagos.pagos|length }}">{{ cronograma_con_pagos.cronograma.detalle }}</td>
                 {% for pago in cronograma_con_pagos.pagos %}
                 {% if forloop.first %}
