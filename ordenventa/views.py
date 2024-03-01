@@ -1,6 +1,7 @@
 from rest_framework import generics
 from django.http import HttpResponse, JsonResponse
 from inventario.models import Inventario
+from reportes.models import Proveedor
 from .models import OrdenDeCompra, OrdenVenta, ItemOrdenVenta
 from .serializers import OrdenVentaSerializer, ItemOrdenVentaSerializer
 from django.shortcuts import redirect, render, get_object_or_404
@@ -175,16 +176,24 @@ def ver_ordenes_compra(request, ordenventa_id):
     ordenventa = get_object_or_404(OrdenVenta, pk=ordenventa_id)
     ordenes_compra = OrdenDeCompra.objects.filter(
         item_orden_venta__ordenventa=ordenventa,
-        # item_orden_venta__enviado=True  # Añade este filtro
+        # Aquí puedes descomentar y agregar cualquier otro filtro que necesites.
+        # item_orden_venta__enviado=True
     )
+    # Aquí agregas la obtención de todos los proveedores disponibles.
+    proveedores = Proveedor.objects.all()
+
     return render(
         request,
         "ver_orden_compra.html",
-        {"ordenes_compra": ordenes_compra, "ordenventa": ordenventa},
+        {
+            "ordenes_compra": ordenes_compra,
+            "ordenventa": ordenventa,
+            "proveedores": proveedores,  # Pasas la lista de proveedores a la plantilla.
+        },
     )
 
 
-# mas ordenes automaticas :P
+# mas ordenes automaticas :P (y es la mas importante pelotudo no la friegues esta vez)
 def actualizar_orden_de_compra(request, id):
     if request.method == "POST":
         orden_de_compra = get_object_or_404(OrdenDeCompra, pk=id)
@@ -197,44 +206,42 @@ def actualizar_orden_de_compra(request, id):
 
         # Nuevos campos
         clase = request.POST.get("clase", "")
-        proveedor = request.POST.get("proveedor", "")
+        proveedor_id = request.POST.get("proveedor", "")  # Cambiado a proveedor_id para claridad
         cuotas = request.POST.get("cuotas", "")
 
         # Asegurarse de convertir a tipos numéricos antes de realizar cálculos
         try:
-            orden_de_compra.cantidad = (
-                int(cantidad) if cantidad else orden_de_compra.cantidad
-            )
-            orden_de_compra.precio_actual = (
-                float(precio_actual) if precio_actual else orden_de_compra.precio_actual
-            )
+            orden_de_compra.cantidad = int(cantidad) if cantidad else orden_de_compra.cantidad
+            orden_de_compra.precio_actual = float(precio_actual) if precio_actual else orden_de_compra.precio_actual
             orden_de_compra.igv = float(igv) if igv else orden_de_compra.igv
-            orden_de_compra.detraccion = (
-                float(detraccion) if detraccion else orden_de_compra.detraccion
-            )
+            orden_de_compra.detraccion = float(detraccion) if detraccion else orden_de_compra.detraccion
             orden_de_compra.clase = clase if clase else orden_de_compra.clase
-            # Asumiendo que tienes un campo para 'proveedor' y 'cuotas' en tu modelo OrdenDeCompra
             orden_de_compra.cuotas = int(cuotas) if cuotas else orden_de_compra.cuotas
 
+            # Actualización del proveedor
+            if proveedor_id:
+                proveedor = Proveedor.objects.filter(id=proveedor_id).first()
+                orden_de_compra.proveedor = proveedor
+            else:
+                orden_de_compra.proveedor = None
 
         except ValueError:
-            # Aquí puedes manejar el error o devolver un mensaje al usuario
+            # Manejo de error o devolver un mensaje al usuario
             return HttpResponse("Error en los datos proporcionados", status=400)
 
         orden_de_compra.save()
-        return HttpResponse(
-            f"Orden de compra actualizada: {orden_de_compra.precio_total}"
-        )
+        # Aquí puedes decidir cómo responder después de actualizar la orden de compra.
+        # Por ejemplo, podrías redirigir al usuario a otra página o devolver un mensaje de éxito.
+        return HttpResponse(f"Orden de compra actualizada: {orden_de_compra.precio_total}")
 
     else:
-        # Puedes ajustar esta respuesta según lo que sea más adecuado para tu aplicación
+        # Método no permitido
         return HttpResponse("Método no permitido", status=405)
 
-
-# ordenes d epago :)
+# ordenes d epago :) gracias totales 
 def ver_ordenes_pago(request):
-    # Filtra las OrdenDeCompra por aquellas con el campo 'precio_total' mayor a 0.0
-    ordenes_de_pago = OrdenDeCompra.objects.filter(precio_total__gt=0.00)
+    # Usar select_related para traer la información del proveedor en la misma consulta
+    ordenes_de_pago = OrdenDeCompra.objects.filter(precio_total__gt=0.00).select_related('proveedor')
     context = {"ordenes_de_pago": ordenes_de_pago}
     return render(request, "ver_orden_pago.html", context)
 

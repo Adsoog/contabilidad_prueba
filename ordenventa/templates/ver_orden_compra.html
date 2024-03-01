@@ -10,14 +10,15 @@
         z-index: 1;
     }
     .table-responsive {
-        max-height: 80vh;
+        max-height: 90vh;
         overflow-y: auto;
+        padding-top: 10px;
     }
     .input-corto {
-        width: 70px;
+        width: 60px;
     }
     .input-medio {
-        width: 120px;
+        width: 100px;
     }
     input[type="number"] {
         text-align: right;
@@ -26,52 +27,73 @@
         padding: 5px;
         white-space: nowrap;
     }
+    /* Estilo adicional para la cabecera */
+    .header-flex {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .header-flex h2 {
+        margin-bottom: 0; /* Elimina el margen inferior del título para alinearlo con el botón */
+    }
 </style>
-<h2>Órdenes de Compra para {{ ordenventa.observacion }} - {{ ordenventa.proyecto}} </h2>
-<div style="margin-bottom: 20px;">
-    <a href="{% url 'ver_ordenes_pago' %}" class="btn btn-info">Ver Órdenes de Pago</a>
-</div>
 
-<div class="table-responsive">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Clase</th> <!-- Nueva columna Clase -->
-                <th>Descripción del Artículo</th>
-                <th>Cantidad</th>
-                <th>Código SAP</th>
-                <th>Precio Actual</th>
-                <th>IGV (%)</th>
-                <th>Detracción (%)</th>
-                <th>Precio Total</th>
-                <th>Proveedor</th> <!-- Nueva columna Proveedor -->
-                <th>Cuotas</th> <!-- Nueva columna Cuotas -->
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for orden in ordenes_compra %}
-            <tr>
-                <td><input class="input-corto" type="text" name="clase" value="{{ orden.clase }}" placeholder="Clase" form="form-{{ orden.id }}"></td>
-<!-- Asumiendo que existe 'clase' en tus datos -->
-                <td>{{ orden.desc_articulo }}</td>
-                <td><input class="input-corto" form="form-{{ orden.id }}" type="number" name="cantidad" value="{{ orden.cantidad }}" /></td>
-                <td>{{ orden.codigo_sap }}</td>
-                <td><input class="input-medio" form="form-{{ orden.id }}" type="number" name="precio_actual" value="{{ orden.precio_actual }}" /></td>
-                <td><input class="input-corto" form="form-{{ orden.id }}" type="number" name="igv" value="{{ orden.igv }}" /></td>
-                <td><input class="input-corto" form="form-{{ orden.id }}" type="number" name="detraccion" value="{{ orden.detraccion }}" /></td>
-                <td id="precio-total-{{ orden.id }}">{{ orden.precio_total }}</td>
-                <td> proveedor</td> <!-- Datos de Proveedor --> <!-- Datos de Número Bancario -->
-                <td><input class="input-corto" form="form-{{ orden.id }}" type="number" name="cuotas" value="{{ orden.cuotas }}"></td>
-                <td>
-                    <form id="form-{{ orden.id }}" hx-post="{% url 'actualizar_orden_compra' orden.id %}" hx-target="#precio-total-{{ orden.id }}" hx-swap="outerHTML" method="post">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-primary">ACT</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+    <div class="header-flex">
+        <h2>Órdenes de Compra para {{ ordenventa.observacion }} - {{ ordenventa.proyecto }}</h2>
+        <a href="{% url 'ver_ordenes_pago' %}" class="btn btn-info">Ver Órdenes de Pago</a>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Clase</th>
+                    <th>Descripción del Artículo</th>
+                    <th>Cantidad</th>
+                    <th>Código SAP</th>
+                    <th>Precio Actual</th>
+                    <th>IGV (%)</th>
+                    <th>Detracción (%)</th>
+                    <th>Precio Total</th>
+                    <th>Proveedor</th>
+                    <th>Cuotas</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for orden in ordenes_compra %}
+                <tr>
+                    <td><input class="input-corto" type="text" name="clase" value="{{ orden.clase }}" placeholder="Clase" form="form-{{ orden.id }}"></td>
+                    <td>{{ orden.desc_articulo }}</td>
+                    <td><input class="input-corto" form="form-{{ orden.id }}" type="number" name="cantidad" value="{{ orden.cantidad }}" /></td>
+                    <td>{{ orden.codigo_sap }}</td>
+                    <td><input class="input-medio" form="form-{{ orden.id }}" type="number" name="precio_actual" value="{{ orden.precio_actual }}" /></td>
+                    <td><input class="input-corto" form="form-{{ orden.id }}" type="number" name="igv" value="{{ orden.igv }}" /></td>
+                    <td><input class="input-corto" form="form-{{ orden.id }}" type="number" name="detraccion" value="{{ orden.detraccion }}" /></td>
+                    <td id="precio-total-{{ orden.id }}">{{ orden.precio_total }}</td>
+                    <td>
+                        <select name="proveedor" form="form-{{ orden.id }}">
+                            {% if orden.proveedor %}
+                            <option value="{{ orden.proveedor.id }}" selected>{{ orden.proveedor.nombre_proveedor }}</option>
+                            {% else %}
+                            <option value="" selected>Seleccionar</option>
+                            {% endif %}
+                            {% for proveedor in proveedores %}
+                            <option value="{{ proveedor.id }}">{{ proveedor.nombre_proveedor }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td><input class="input-corto" form="form-{{ orden.id }}" type="number" name="cuotas" value="{{ orden.cuotas }}"></td>
+                    <td>
+                        <form id="form-{{ orden.id }}" hx-post="{% url 'actualizar_orden_compra' orden.id %}" hx-target="#precio-total-{{ orden.id }}" hx-swap="outerHTML" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary">ACT</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
 {% endblock %}
