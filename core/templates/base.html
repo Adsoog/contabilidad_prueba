@@ -61,24 +61,44 @@
             padding: 20px;
         }
         @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-                box-shadow: none;
-            }
-            .sidebar h2, .sidebar li a {
-                padding: 10px;
-                font-size: 16px;
-            }
-            .sidebar li a i {
-                font-size: 18px;
-            }
-            .content {
-                margin-left: 0;
-                padding: 10px;
-            }
-        }
+    .sidebar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: auto;
+        padding: 0;
+        background: rgba(0, 0, 0, 0.5); /* Fondo oscuro para contraste */
+        display: flex;
+        align-items: center;
+        justify-content: space-around; /* Distribuye los elementos uniformemente */
+        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2); /* Sombra para dar sensación de elevación */
+        z-index: 1500; /* Asegúrate de que la barra esté por encima de otros elementos */
+    }
+    .sidebar ul {
+        display: flex;
+        width: 100%;
+        padding: 0;
+    }
+    .sidebar li {
+        flex-grow: 1;
+        margin: 0;
+        text-align: center; /* Centra el texto y los íconos */
+    }
+    .sidebar h2, .sidebar li a {
+        padding: 10px 5px;
+        font-size: 12px; /* Reduce el tamaño del texto para que quepa */
+    }
+    .sidebar li a i {
+        display: block; /* Hace que el ícono esté sobre el texto */
+        margin: 0 auto 5px;
+        font-size: 20px; /* Tamaño adecuado para íconos */
+    }
+    .content {
+        padding-bottom: 60px; /* Asegura espacio en la parte inferior para no ocultar contenido */
+    }
+}
+
 
     </style>
 </head>
