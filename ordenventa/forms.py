@@ -16,7 +16,7 @@ class OrdenVentaForm(forms.ModelForm):
         self.helper = FormHelper(self)
         self.helper.form_method = 'post'
         self.helper.layout = Layout(
-            'codigosap',
+        'codigosap',
             'proyecto',
             'direccion_proyecto',
             'observacion',
@@ -28,7 +28,7 @@ class OrdenVentaForm(forms.ModelForm):
 class ItemOrdenVentaForm(forms.ModelForm):
     class Meta:
         model = ItemOrdenVenta
-        fields = ["nro_articulo", "cantidad", "precio_bruto", "total_bruto"]
+        fields = ['nro_articulo', 'desc_articulo', 'cantidad', 'precio_bruto', 'total_bruto']
 
 class OfertaVentaUploadForm(forms.Form):
     archivo_excel = forms.FileField(label='Selecciona un archivo Excel')

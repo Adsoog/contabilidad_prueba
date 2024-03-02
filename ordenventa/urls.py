@@ -8,9 +8,6 @@ from .views import (
     actualizar_orden_de_compra,
     procesar_orden_venta_excel,
     ver_items_orden_venta,
-    procesar_seleccion,
-    ver_items_enviados_orden_venta,
-    ver_items_orden_venta2,
     ver_ordenes_compra,
     ver_ordenes_pago,
 )
@@ -43,16 +40,6 @@ urlpatterns = [
         "ver_items_orden_venta/<int:ordenventa_id>/",
         ver_items_orden_venta,
         name="ver_items_orden_venta",
-    ),
-    path(
-        "ver_items_orden_venta2/<int:ordenventa_id>/",
-        ver_items_orden_venta2,
-        name="ver_items_orden_venta2",
-    ),
-    path(
-        "procesar_seleccion/<int:ordenventa_id>/",
-        procesar_seleccion,
-        name="procesar_seleccion",
     ),
     # nolose rick y mas ordenes automaticas
     path(

@@ -1,38 +1,58 @@
 {% extends 'base.html' %}
 
+{% load crispy_forms_tags %}
+
 {% block title %}Formulario de Carga de Orden de Venta{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm">
+        <!-- Añadir Ítem Individualmente -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100" style="border-radius: 20px;">
                 <div class="card-header">
-                    <h2 class="mb-0">Cargar Orden de Venta desde Excel</h2>
+                    <h2 class="mb-0">Añadir Ítem Individualmente</h2>
                 </div>
                 <div class="card-body">
-                    <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    <form method="post">
                         {% csrf_token %}
-                        <div class="mb-3">
-                            {{ form.as_p }}
-                        </div>
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">Cargar Excel</button>
-                        </div>
+                        <input type="hidden" name="submit-item" value="1">
+                        {{ form_item|crispy }}
+                        <button type="submit" class="btn btn-success">Añadir Ítem</button>
                     </form>
+                </div>
+            </div>
+        </div>
+        <!-- Cargar Orden de Venta desde Excel -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100" style="border-radius: 20px;">
+                <div class="card-header">
+                    <h2 class="mb-0">Cargar Items desde Excel</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="submit-excel" value="1">
+                        {{ form_excel|crispy }}
+                        <button type="submit" class="btn btn-primary">Cargar Excel</button>
+                    </form>
+                    <div class="mt-3 text-center">
+                        <img src="/static/images/conta.webp" alt="Decorative image" class="rounded-circle" style="max-width: 50%; height: auto; width: 150px; height: 150px; object-fit: cover; border-radius: 50%; display: inline-block; margin-top: 80px;">
+                    </div>
+                    
+                    
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 <script>
-    // Ejemplo de JavaScript para deshabilitar el envío de formularios si hay campos no válidos
+    // JavaScript para deshabilitar el envío de formularios si hay campos no válidos
     (function() {
         'use strict';
         window.addEventListener('load', function() {
-            // Obtener todos los formularios a los que queremos aplicar estilos de validación personalizados de Bootstrap
             var forms = document.getElementsByClassName('needs-validation');
-            // Bucle sobre ellos y evitar el envío
             var validation = Array.prototype.filter.call(forms, function(form) {
                 form.addEventListener('submit', function(event) {
                     if (form.checkValidity() === false) {

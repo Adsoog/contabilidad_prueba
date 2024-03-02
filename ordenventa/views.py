@@ -61,56 +61,47 @@ class OrdenVentaCRUDView(View):
                 {"ordenes_venta": ordenes_venta, "form": form},
             )
 
-
-def procesar_seleccion(request, ordenventa_id):
-    if request.method == "POST":
-        selected_items = request.POST.getlist("selected_items")
-        action = request.POST.get("action")
-
-        if action == "eliminar":
-            # Elimina los ítems seleccionados
-            ItemOrdenVenta.objects.filter(id__in=selected_items).delete()
-        elif action == "marcar_enviado":
-            # Marca como enviado los ítems seleccionados
-            ItemOrdenVenta.objects.filter(id__in=selected_items).update(enviado=True)
-
-        # Redirige según la acción
-        return redirect("ver_items_orden_venta", ordenventa_id=ordenventa_id)
-
-    return redirect("ordenventa_crud")
-
-
-# FUNCION PARA PROCESAR EL EXCEL
+# FUNCION PARA PROCESAR EL EXCEL Y ITEMS INDIVIDUALES
 def procesar_orden_venta_excel(request, ordenventa_id):
     if request.method == "POST":
-        form = OrdenVentaUploadForm(request.POST, request.FILES)
-        if form.is_valid():
-            archivo_excel = request.FILES["archivo_excel"]
+        if 'submit-excel' in request.POST:  # Identificar si se envió el formulario de Excel
+            form_excel = OrdenVentaUploadForm(request.POST, request.FILES)
+            if form_excel.is_valid():
+                archivo_excel = request.FILES["archivo_excel"]
+                workbook = load_workbook(archivo_excel)
+                sheet = workbook.active
 
-            # Cargar el archivo Excel con Openpyxl
-            workbook = load_workbook(archivo_excel)
-            sheet = workbook.active  # Si solo hay una hoja en el archivo Excel
-
-            # Iterar sobre cada fila del archivo Excel
-            for row in sheet.iter_rows(min_row=2, values_only=True):
-                # Crear un objeto ItemOrdenVenta con los datos de la fila
-                ItemOrdenVenta.objects.create(
-                    ordenventa_id=ordenventa_id,
-                    nro_articulo=row[0],
-                    desc_articulo=row[1],
-                    cantidad=row[2],
-                    precio_bruto=row[6],
-                    total_bruto=row[12],
-                )
-
-            return redirect(
-                "ver_items_orden_venta", ordenventa_id=ordenventa_id
-            )  # Redirige a la vista correspondiente
+                for row in sheet.iter_rows(min_row=2, values_only=True):
+                    if row[0] is None or row[1] is None or row[2] is None:
+                        continue
+                    ItemOrdenVenta.objects.create(
+                        ordenventa_id=ordenventa_id,
+                        nro_articulo=row[0],
+                        desc_articulo=row[1],
+                        cantidad=row[2],
+                        precio_bruto=row[6],
+                        total_bruto=row[12],
+                    )
+                return redirect("ver_items_orden_venta", ordenventa_id=ordenventa_id)
+            else:
+                form_item = ItemOrdenVentaForm()  # Inicializar formulario de ítem vacío si no se procesa el de Excel
+        elif 'submit-item' in request.POST:  # Identificar si se envió el formulario de ítem individual
+            form_item = ItemOrdenVentaForm(request.POST)
+            form_excel = OrdenVentaUploadForm()  # Inicializar formulario de Excel vacío por defecto
+            if form_item.is_valid():
+                nuevo_item = form_item.save(commit=False)
+                nuevo_item.ordenventa_id = ordenventa_id  # Asignar manualmente el ID de la orden de venta
+                nuevo_item.save()
+                return redirect("ver_items_orden_venta", ordenventa_id=ordenventa_id)
     else:
-        form = OrdenVentaUploadForm()
+        form_excel = OrdenVentaUploadForm()
+        form_item = ItemOrdenVentaForm()
 
-    return render(request, "formulario_orden_venta.html", {"form": form})
-
+    return render(request, "formulario_orden_venta.html", {
+        "form_excel": form_excel,
+        "form_item": form_item,
+        "ordenventa_id": ordenventa_id,
+    })
 
 # VER LOS ITEMS SEGUN ID
 def ver_items_orden_venta(request, ordenventa_id):
@@ -127,49 +118,6 @@ def ver_items_orden_venta(request, ordenventa_id):
         "ver_items_orden_venta.html",
         {"ordenventa": ordenventa, "items": items},
     )
-
-
-def ver_items_orden_venta2(request, ordenventa_id):
-    ordenventa = get_object_or_404(OrdenVenta, pk=ordenventa_id)
-    items = ItemOrdenVenta.objects.filter(ordenventa=ordenventa)
-
-    # Obtener los nro_articulo de los items de la orden de venta
-    nros_articulos = [item.nro_articulo for item in items]
-
-    # Filtrar los registros de Inventario que coinciden con los nro_articulo de los items
-    inventario = Inventario.objects.filter(num_articulo__in=nros_articulos)
-
-    return render(
-        request,
-        "ver_items_orden_venta2.html",
-        {"ordenventa": ordenventa, "items": items, "inventario": inventario},
-    )
-
-
-# VER LOS ITEMS SEGUN ENVIADOS Y LUEGO PROCESAR CON DEMS FUNCIONES
-def ver_items_enviados_orden_venta(request, ordenventa_id):
-    ordenventa = get_object_or_404(OrdenVenta, pk=ordenventa_id)
-    items_enviados = ItemOrdenVenta.objects.filter(ordenventa=ordenventa, enviado=True)
-
-    if request.headers.get("x-requested-with") == "XMLHttpRequest":
-        data = []
-        for item in items_enviados:
-            data.append(
-                {
-                    "desc_articulo": item.desc_articulo,
-                    "cantidad": item.cantidad,
-                    "precio_bruto": item.precio_bruto,
-                    "total_bruto": item.total_bruto,
-                }
-            )
-        return JsonResponse(data, safe=False)
-
-    return render(
-        request,
-        "ver_items_enviados_orden_venta.html",
-        {"ordenventa": ordenventa, "items_enviados": items_enviados},
-    )
-
 
 # ORDEN AUTOMATICAS
 def ver_ordenes_compra(request, ordenventa_id):
