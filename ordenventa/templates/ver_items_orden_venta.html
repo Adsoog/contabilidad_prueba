@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1 class="mb-4">Items de la Orden de Venta {{ ordenventa }}</h1>
-
-<!-- Botón para ver las órdenes de compra relacionadas -->
-<button type="button" class="btn btn-primary" onclick="location.href='{% url 'ver_ordenes_compra' ordenventa.id %}'">Ver Órdenes de Compra</button>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Items de la Orden de Venta {{ ordenventa }}</h2>
+    <!-- Botón alineado al lado del título -->
+    <button type="button" class="btn btn-primary" onclick="location.href='{% url 'ver_ordenes_compra' ordenventa.id %}'">Hagamos pedidos! :)</button>
+</div>
 
 <!-- Contenedor para la tabla de items que será actualizada por HTMX -->
 <div id="items-container">
@@ -13,8 +14,7 @@
     <table class="table">
         <thead class="table-dark">
             <tr>
-                <th>Seleccionar</th>
-                <th>Número de Artículo</th>
+                <th>Codigo de Artículo</th>
                 <th>Descripción del Artículo</th>
                 <th>Cantidad</th>
                 <th>Precio Bruto</th>
@@ -24,7 +24,6 @@
         <tbody>
             {% for item in items %}
             <tr class="{% if not item.enviado %}table-success{% endif %}">
-                <td><input type="checkbox" name="selected_items" value="{{ item.id }}"></td>
                 <td>{{ item.nro_articulo }}</td>
                 <td>{{ item.desc_articulo }}</td>
                 <td>{{ item.cantidad }}</td>
