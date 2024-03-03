@@ -12,6 +12,7 @@ from .forms import ItemOrdenVentaForm, OrdenVentaForm, OrdenVentaUploadForm
 from openpyxl import load_workbook
 from django.db import transaction
 from django.template.loader import render_to_string
+from django.utils.dateparse import parse_date
 
 
 # antiguos view debemos depurar despues
@@ -61,10 +62,13 @@ class OrdenVentaCRUDView(View):
                 {"ordenes_venta": ordenes_venta, "form": form},
             )
 
+
 # FUNCION PARA PROCESAR EL EXCEL Y ITEMS INDIVIDUALES
 def procesar_orden_venta_excel(request, ordenventa_id):
     if request.method == "POST":
-        if 'submit-excel' in request.POST:  # Identificar si se envió el formulario de Excel
+        if (
+            "submit-excel" in request.POST
+        ):  # Identificar si se envió el formulario de Excel
             form_excel = OrdenVentaUploadForm(request.POST, request.FILES)
             if form_excel.is_valid():
                 archivo_excel = request.FILES["archivo_excel"]
@@ -84,24 +88,37 @@ def procesar_orden_venta_excel(request, ordenventa_id):
                     )
                 return redirect("ver_items_orden_venta", ordenventa_id=ordenventa_id)
             else:
-                form_item = ItemOrdenVentaForm()  # Inicializar formulario de ítem vacío si no se procesa el de Excel
-        elif 'submit-item' in request.POST:  # Identificar si se envió el formulario de ítem individual
+                form_item = (
+                    ItemOrdenVentaForm()
+                )  # Inicializar formulario de ítem vacío si no se procesa el de Excel
+        elif (
+            "submit-item" in request.POST
+        ):  # Identificar si se envió el formulario de ítem individual
             form_item = ItemOrdenVentaForm(request.POST)
-            form_excel = OrdenVentaUploadForm()  # Inicializar formulario de Excel vacío por defecto
+            form_excel = (
+                OrdenVentaUploadForm()
+            )  # Inicializar formulario de Excel vacío por defecto
             if form_item.is_valid():
                 nuevo_item = form_item.save(commit=False)
-                nuevo_item.ordenventa_id = ordenventa_id  # Asignar manualmente el ID de la orden de venta
+                nuevo_item.ordenventa_id = (
+                    ordenventa_id  # Asignar manualmente el ID de la orden de venta
+                )
                 nuevo_item.save()
                 return redirect("ver_items_orden_venta", ordenventa_id=ordenventa_id)
     else:
         form_excel = OrdenVentaUploadForm()
         form_item = ItemOrdenVentaForm()
 
-    return render(request, "formulario_orden_venta.html", {
-        "form_excel": form_excel,
-        "form_item": form_item,
-        "ordenventa_id": ordenventa_id,
-    })
+    return render(
+        request,
+        "formulario_orden_venta.html",
+        {
+            "form_excel": form_excel,
+            "form_item": form_item,
+            "ordenventa_id": ordenventa_id,
+        },
+    )
+
 
 # VER LOS ITEMS SEGUN ID
 def ver_items_orden_venta(request, ordenventa_id):
@@ -118,6 +135,7 @@ def ver_items_orden_venta(request, ordenventa_id):
         "ver_items_orden_venta.html",
         {"ordenventa": ordenventa, "items": items},
     )
+
 
 # ORDEN AUTOMATICAS
 def ver_ordenes_compra(request, ordenventa_id):
@@ -154,15 +172,29 @@ def actualizar_orden_de_compra(request, id):
 
         # Nuevos campos
         clase = request.POST.get("clase", "")
-        proveedor_id = request.POST.get("proveedor", "")  # Cambiado a proveedor_id para claridad
+        proveedor_id = request.POST.get(
+            "proveedor", ""
+        )  # Cambiado a proveedor_id para claridad
         cuotas = request.POST.get("cuotas", "")
+        fecha_pago = request.POST.get(
+            "fecha_pago", ""
+        )  # Nuevo campo para fecha de pago
+        comprobante_pago = request.FILES.get(
+            "comprobante_pago", None
+        )  # Nuevo campo para el PDF
 
         # Asegurarse de convertir a tipos numéricos antes de realizar cálculos
         try:
-            orden_de_compra.cantidad = int(cantidad) if cantidad else orden_de_compra.cantidad
-            orden_de_compra.precio_actual = float(precio_actual) if precio_actual else orden_de_compra.precio_actual
+            orden_de_compra.cantidad = (
+                int(cantidad) if cantidad else orden_de_compra.cantidad
+            )
+            orden_de_compra.precio_actual = (
+                float(precio_actual) if precio_actual else orden_de_compra.precio_actual
+            )
             orden_de_compra.igv = float(igv) if igv else orden_de_compra.igv
-            orden_de_compra.detraccion = float(detraccion) if detraccion else orden_de_compra.detraccion
+            orden_de_compra.detraccion = (
+                float(detraccion) if detraccion else orden_de_compra.detraccion
+            )
             orden_de_compra.clase = clase if clase else orden_de_compra.clase
             orden_de_compra.cuotas = int(cuotas) if cuotas else orden_de_compra.cuotas
 
@@ -173,24 +205,57 @@ def actualizar_orden_de_compra(request, id):
             else:
                 orden_de_compra.proveedor = None
 
+            # Actualizar fecha_pago si se proporciona
+            if fecha_pago:
+                orden_de_compra.fecha_pago = parse_date(fecha_pago)
+
+            # Actualizar comprobante_pago si se proporciona
+            if comprobante_pago:
+                orden_de_compra.comprobante_pago = comprobante_pago
+
+            orden_de_compra.save()
+            # Aquí puedes decidir cómo responder después de actualizar la orden de compra.
+            return HttpResponse(
+                f"Orden de compra actualizada con éxito: {orden_de_compra.precio_total}"
+            )
+
         except ValueError:
             # Manejo de error o devolver un mensaje al usuario
             return HttpResponse("Error en los datos proporcionados", status=400)
-
-        orden_de_compra.save()
-        # Aquí puedes decidir cómo responder después de actualizar la orden de compra.
-        # Por ejemplo, podrías redirigir al usuario a otra página o devolver un mensaje de éxito.
-        return HttpResponse(f"Orden de compra actualizada: {orden_de_compra.precio_total}")
 
     else:
         # Método no permitido
         return HttpResponse("Método no permitido", status=405)
 
-# ordenes d epago :) gracias totales 
-def ver_ordenes_pago(request):
-    # Usar select_related para traer la información del proveedor en la misma consulta
-    ordenes_de_pago = OrdenDeCompra.objects.filter(precio_total__gt=0.00).select_related('proveedor')
-    context = {"ordenes_de_pago": ordenes_de_pago}
+
+# ordenes d epago :) gracias totales
+
+
+# experimento :=
+def ver_ordenes_pago(request, ordenventa_id=None):
+    ordenes_de_pago = []
+    ordenventa = None
+    fecha = None  # Inicializa fecha aquí
+
+    if ordenventa_id:
+        ordenventa = get_object_or_404(OrdenVenta, pk=ordenventa_id)
+        ordenes_de_pago = OrdenDeCompra.objects.filter(
+            item_orden_venta__ordenventa=ordenventa, precio_total__gt=0.00
+        ).select_related("proveedor")
+    else:
+        fecha_str = request.GET.get("fecha_pago")
+        if fecha_str:
+            fecha = parse_date(fecha_str)
+            if fecha:
+                ordenes_de_pago = OrdenDeCompra.objects.filter(
+                    fecha_pago=fecha, precio_total__gt=0.00
+                ).select_related("proveedor")
+
+    context = {
+        "ordenes_de_pago": ordenes_de_pago,
+        "ordenventa": ordenventa,
+        "fecha": fecha,  # Usa la variable fecha directamente
+    }
     return render(request, "ver_orden_pago.html", context)
 
 

@@ -55,3 +55,23 @@ def crear_pagos(sender, instance, created, **kwargs):
                 fecha_pago=fecha_actual,
                 monto_pago=instance.monto_cuota,
             )
+
+
+class Resolucion(models.Model):
+    numero = models.CharField(max_length=20, unique=True)
+    tipo = models.CharField(max_length=50)
+    tiempo_aplazamiento = models.IntegerField(
+        help_text="Tiempo de aplazamiento en meses"
+    )
+
+
+class DetallePago(models.Model):
+    resolucion = models.ForeignKey(
+        Resolucion, on_delete=models.CASCADE, related_name="detalles_pago"
+    )
+    id_pago = models.CharField(max_length=10)
+    vencimiento = models.DateField()
+    amortizacion = models.DecimalField(max_digits=10, decimal_places=2)
+    interes = models.DecimalField(max_digits=10, decimal_places=2)
+    total = models.DecimalField(max_digits=10, decimal_places=2)
+    saldo = models.DecimalField(max_digits=10, decimal_places=2)

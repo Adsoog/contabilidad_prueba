@@ -40,7 +40,8 @@
 
     <div class="header-flex">
         <h2>Órdenes de Compra para {{ ordenventa.observacion }} - {{ ordenventa.proyecto }}</h2>
-        <a href="{% url 'ver_ordenes_pago' %}" class="btn btn-info">Ver Órdenes de Pago</a>
+        <a href="{% url 'ver_ordenes_pago' ordenventa.id %}" class="btn btn-info">Ver Órdenes de Pago</a>
+
     </div>
     
     <div class="table-responsive">
@@ -57,6 +58,8 @@
                     <th>Total</th>
                     <th>Proveedor</th>
                     <th>Cuotas</th>
+                    <th>Fecha de pago</th>
+                    <th>Comprobante</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -85,7 +88,13 @@
                     </td>
                     <td><input class="input-corto" form="form-{{ orden.id }}" type="number" name="cuotas" value="{{ orden.cuotas }}"></td>
                     <td>
-                        <form id="form-{{ orden.id }}" hx-post="{% url 'actualizar_orden_compra' orden.id %}" hx-target="#precio-total-{{ orden.id }}" hx-swap="outerHTML" method="post">
+                        <input class="input-medio" form="form-{{ orden.id }}" type="date" name="fecha_pago" value="{{ orden.fecha_pago|date:'Y-m-d' }}">
+                    </td>
+                    <td>
+                        <input form="form-{{ orden.id }}" type="file" name="comprobante_pago" accept=".pdf">
+                    </td>
+                    <td>
+                        <form id="form-{{ orden.id }}" hx-post="{% url 'actualizar_orden_compra' orden.id %}" hx-target="#precio-total-{{ orden.id }}" hx-swap="outerHTML" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-primary">ACT</button>
                         </form>

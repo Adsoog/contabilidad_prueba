@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.core.validators import FileExtensionValidator
 
 from reportes.models import Proveedor
 
@@ -39,8 +40,12 @@ class OrdenDeCompra(models.Model):
     clase = models.CharField(max_length=50, default="")
     # Establece una relación ForeignKey con Proveedor
     proveedor = models.ForeignKey(
-        Proveedor, on_delete=models.SET_NULL, null=True, blank=True, related_name="ordenes_de_compra",
-        verbose_name="Proveedor"
+        Proveedor,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="ordenes_de_compra",
+        verbose_name="Proveedor",
     )
     # Elimina los campos proveedor, banco y numero_bancario, ya que ahora usarás la relación con Proveedor
     desc_articulo = models.CharField(max_length=50)
@@ -48,10 +53,25 @@ class OrdenDeCompra(models.Model):
     codigo_sap = models.CharField(max_length=50)
     precio_actual = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     igv = models.DecimalField(max_digits=5, decimal_places=2, default=0)  # Porcentaje
-    detraccion = models.DecimalField(max_digits=5, decimal_places=2, default=0)  # Porcentaje
-    precio_total = models.DecimalField(max_digits=10, decimal_places=2, editable=False, default=0)
+    detraccion = models.DecimalField(
+        max_digits=5, decimal_places=2, default=0
+    )  # Porcentaje
+    precio_total = models.DecimalField(
+        max_digits=10, decimal_places=2, editable=False, default=0
+    )
     cuotas = models.IntegerField(default=0)
-    
+    fecha_pago = models.DateField(null=True, blank=True, verbose_name="Fecha de Pago")
+    # Añade el campo comprobante_pago
+    comprobante_pago = models.FileField(
+        upload_to="comprobantes_pago/",  # Directorio donde se guardarán los archivos
+        validators=[
+            FileExtensionValidator(allowed_extensions=["pdf"])
+        ],  # Asegura que solo se puedan subir archivos PDF
+        null=True,
+        blank=True,
+        verbose_name="Comprobante de Pago",
+    )
+
     def save(self, *args, **kwargs):
         self.precio_total = self.cantidad * self.precio_actual * (
             1 + self.igv / 100

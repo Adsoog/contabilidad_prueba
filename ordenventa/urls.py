@@ -12,6 +12,8 @@ from .views import (
     ver_ordenes_pago,
 )
 
+from . import views
+
 urlpatterns = [
     path("ordenesventa/", ListaOrdenesVenta.as_view(), name="lista_ordenesventa"),
     path(
@@ -53,5 +55,9 @@ urlpatterns = [
         name="actualizar_orden_compra",
     ),
     # ordenes fake de pago :)
-    path("ordenes-pago/", ver_ordenes_pago, name="ver_ordenes_pago"),
+    path(
+        "ordenes-pago/<int:ordenventa_id>/",
+        views.ver_ordenes_pago,
+        name="ver_ordenes_pago",
+    ),
 ]

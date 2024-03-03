@@ -4,10 +4,13 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_http_methods
 from .forms import EditarFechaPagoForm, EditarMontoForm, CambiarPDFPagoForm
-from .models import PagoCronograma
+from .models import DetallePago, PagoCronograma, Resolucion
 from cronogramas.models import Cronograma, PagoCronograma
 from .forms import CronogramaForm  # Importa el formulario de Cronograma
 from django.urls import reverse
+import pdfplumber
+import re
+from django.utils.dateparse import parse_date
 
 
 def crear_cronograma(request):
@@ -82,7 +85,7 @@ def cambiar_pdf_pago(request, pago_id):
         form.save()
         # Asume que tienes el ID del cronograma disponible o puedes obtenerlo de `pago`
         cronograma_id = pago.cronograma.id
-        return redirect(reverse('pagos_cronograma', args=[cronograma_id]))
+        return redirect(reverse("pagos_cronograma", args=[cronograma_id]))
     else:
         return JsonResponse({"error": "Datos del formulario no válidos"}, status=400)
 
@@ -101,3 +104,35 @@ def editar_fecha_pago(request, pago_id):
         form = EditarFechaPagoForm(instance=pago)
 
     return render(request, "editar_fecha_pago.html", {"form": form, "pago": pago})
+
+
+# METODO CON PDF PARA SUNAT aqui abajo se veran cosas tenebrosas :()
+
+
+def procesar_pdf(request):
+    if request.method == "POST":
+        archivo_pdf = request.FILES["archivo_pdf"]
+        with pdfplumber.open(archivo_pdf) as pdf:
+            texto_completo = ""
+            for pagina in pdf.pages:
+                texto_completo += pagina.extract_text()
+
+        # Aquí pondrías la lógica para extraer la información del texto
+        # usando expresiones regulares o cualquier otro método adecuado.
+        # Por ejemplo:
+        numero_resolucion = "Extraído del texto"
+        tipo_resolucion = "Extraído del texto"
+        tiempo_aplazamiento = 6  # Extraído del texto y convertido a entero
+
+        # Crear el objeto Resolución
+        resolucion = Resolucion.objects.create(
+            numero=numero_resolucion,
+            tipo_resolucion=tipo_resolucion,
+            tiempo_aplazamiento=tiempo_aplazamiento,
+        )
+
+        # Suponiendo que has extraído los detalles de pago en una lista de diccionarios llamada 'detalles_pagos
+
+        return redirect("alguna_url_despues_de_procesar")  # Redirigir a alguna parte
+    else:
+        return render(request, "subir_pdf.html")  # La plantilla para subir el PDF
