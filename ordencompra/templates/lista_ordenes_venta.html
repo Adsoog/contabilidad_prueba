@@ -8,23 +8,30 @@
             <label for="fecha_pago" class="form-label">Fecha de Pago:</label>
             <input type="date" id="fecha_pago" name="fecha_pago" class="form-control" required>
         </div>
-        <button type="submit" class="btn btn-secondary">Filtrar Órdenes de Pago por Fecha</button>
+        <button type="submit" class="btn btn-secondary">Ver Órdenes de Pago por Fecha</button>
     </form>
-
-    <div class="row">
-        {% for orden_venta in ordenes_venta %}
-            <div class="col-md-6 col-lg-4 mb-3"> <!-- Organizar las tarjetas en una cuadrícula responsiva -->
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h6 class="card-title">{{ orden_venta.codigosap }} - {{ orden_venta.proyecto }} - {{ orden_venta.observacion }}</h6>
-                        <div class="d-flex justify-content-end mt-2">
-                            <a href="{% url 'ver_ordenes_compra' orden_venta.id %}" class="btn btn-primary btn-sm">Ver Órdenes de Compra</a>
-                            <a href="{% url 'ver_ordenes_pago' orden_venta.id %}" class="btn btn-info btn-sm ms-2">Ver Órdenes de Pago</a>
-                        </div>
-                    </div>
+    
+    <!-- Formulario de Filtro con Mejoras -->
+    <form id="filtro-ordenes-venta" class="mb-3" hx-get="{% url 'lista_ordenes_venta' %}" hx-target="#tabla-ordenes-venta" hx-trigger="keyup delay:500ms" style="margin-bottom: 20px;">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="codigosap">Código SAP:</label>
+                    <input type="text" id="codigosap" name="codigosap" class="form-control" placeholder="Filtrar al escribir...">
                 </div>
             </div>
-        {% endfor %}
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="proyecto">Proyecto:</label>
+                    <input type="text" id="proyecto" name="proyecto" class="form-control" placeholder="Filtrar al escribir...">
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- Div para cargar dinámicamente la tabla de órdenes de venta -->
+    <div hx-get="{% url 'lista_ordenes_venta' %}" hx-trigger="load" id="tabla-ordenes-venta">
+        <!-- La tabla se cargará aquí mediante HTMX -->
     </div>
 </div>
 

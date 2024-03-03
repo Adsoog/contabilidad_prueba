@@ -1,8 +1,9 @@
 from django.shortcuts import get_object_or_404, render, redirect
-
 from ordenventa.models import OrdenDeCompra, OrdenVenta
 from .models import OrdenCompra, OrdenPago
 from .forms import OrdenCompraForm, OrdenPagoForm
+from django.http import HttpResponse
+from django.template.loader import render_to_string
 
 
 def lista_ordenes_compra2(request):
@@ -55,8 +56,29 @@ def ordenpago(request):
 # new methods :) ella no te quiere :P
 # Vista para listar las órdenes de venta
 def lista_ordenes_venta(request):
-    ordenes_venta = OrdenVenta.objects.all()
-    return render(request, "lista_ordenes_venta.html", {"ordenes_venta": ordenes_venta})
+
+    query_codigosap = request.GET.get("codigosap", "")
+    query_proyecto = request.GET.get("proyecto", "")
+
+    ordenes_venta = OrdenVenta.objects.all().order_by("-id")
+
+    if query_codigosap:
+        ordenes_venta = ordenes_venta.filter(codigosap__icontains=query_codigosap)
+    if query_proyecto:
+        ordenes_venta = ordenes_venta.filter(proyecto__icontains=query_proyecto)
+
+    if "HX-Request" in request.headers:
+        # Solo devuelve el fragmento de la tabla para solicitudes HTMX
+        return render(
+            request,
+            "fragmentos/tabla_ordenes_venta.html",
+            {"ordenes_venta": ordenes_venta},
+        )
+    else:
+        # Devuelve la página completa para solicitudes no HTMX
+        return render(
+            request, "lista_ordenes_venta.html", {"ordenes_venta": ordenes_venta}
+        )
 
 
 # Vista para mostrar las órdenes de compra de una orden de venta específica
