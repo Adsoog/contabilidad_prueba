@@ -44,7 +44,7 @@ class OrdenVentaCRUDView(View):
         else:
             form = OrdenVentaForm()
 
-        ordenes_venta = OrdenVenta.objects.all()
+        ordenes_venta = OrdenVenta.objects.all().order_by("-id")
         return render(
             request, self.template_name, {"ordenes_venta": ordenes_venta, "form": form}
         )
