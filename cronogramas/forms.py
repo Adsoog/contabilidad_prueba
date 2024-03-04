@@ -1,5 +1,5 @@
 from django import forms
-from .models import Cronograma, PagoCronograma
+from .models import Cronograma, Pago, PagoCronograma
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 
@@ -51,3 +51,13 @@ class EditarFechaPagoForm(forms.ModelForm):
         widgets = {
             "fecha_pago": forms.DateInput(attrs={"type": "date"}),
         }
+
+
+#METODO PDF
+class PDFUploadForm(forms.Form):
+    archivo_pdf = forms.FileField(label='Selecciona un archivo PDF')
+
+class PagoForm(forms.ModelForm):
+    class Meta:
+        model = Pago
+        fields = ['pago_sunat']

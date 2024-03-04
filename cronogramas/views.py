@@ -1,9 +1,12 @@
 import datetime
+from datetime import datetime
+from decimal import Decimal
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse, JsonResponse
+from django.views.generic.list import ListView
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_http_methods
-from .forms import EditarFechaPagoForm, EditarMontoForm, CambiarPDFPagoForm
+from .forms import EditarFechaPagoForm, EditarMontoForm, CambiarPDFPagoForm, PDFUploadForm, PagoForm
 from .models import DetallePago, PagoCronograma, Resolucion
 from cronogramas.models import Cronograma, PagoCronograma
 from .forms import CronogramaForm  # Importa el formulario de Cronograma
@@ -11,6 +14,11 @@ from django.urls import reverse
 import pdfplumber
 import re
 from django.utils.dateparse import parse_date
+from django.shortcuts import render, redirect
+from .forms import PDFUploadForm
+from .models import Resolucion, Pago
+import pdfplumber
+import re
 
 
 def crear_cronograma(request):
@@ -107,32 +115,118 @@ def editar_fecha_pago(request, pago_id):
 
 
 # METODO CON PDF PARA SUNAT aqui abajo se veran cosas tenebrosas :()
-
-
-def procesar_pdf(request):
-    if request.method == "POST":
-        archivo_pdf = request.FILES["archivo_pdf"]
-        with pdfplumber.open(archivo_pdf) as pdf:
+def cargar_pdf(request):
+    if request.method == 'POST':
+        form = PDFUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            archivo_pdf = request.FILES['archivo_pdf']
             texto_completo = ""
-            for pagina in pdf.pages:
-                texto_completo += pagina.extract_text()
+            with pdfplumber.open(archivo_pdf) as pdf:
+                for pagina in pdf.pages:
+                    texto_completo += pagina.extract_text()
 
-        # Aquí pondrías la lógica para extraer la información del texto
-        # usando expresiones regulares o cualquier otro método adecuado.
-        # Por ejemplo:
-        numero_resolucion = "Extraído del texto"
-        tipo_resolucion = "Extraído del texto"
-        tiempo_aplazamiento = 6  # Extraído del texto y convertido a entero
+            # Extracción de datos del PDF
+            # (La lógica de extracción de datos aquí sigue siendo la misma)
+            # Extracción de datos del PDF
+            regex_resolucion = r"RESOLUCIÓN DE INTENDENCIA N.° (\d+)"
+            regex_aplazamiento = r"(Aplazamiento con Fraccionamiento|Fraccionamiento|Aplazamiento) por (\d+) mes\(es\)"
+            regex_tabla = r"([A-Z]+|\d+)\s(\d{2}\/\d{2}\/\d{4})\s([\d,\.]+)\s([\d,\.]+)\s([\d,\.]+)\s([\d,\.]+)"
 
-        # Crear el objeto Resolución
-        resolucion = Resolucion.objects.create(
-            numero=numero_resolucion,
-            tipo_resolucion=tipo_resolucion,
-            tiempo_aplazamiento=tiempo_aplazamiento,
-        )
+            
+            numero_resolucion = re.search(regex_resolucion, texto_completo)
+            if numero_resolucion:
+                numero_resolucion = numero_resolucion.group(1)
+            else:
+                numero_resolucion = "No encontrado"
 
-        # Suponiendo que has extraído los detalles de pago en una lista de diccionarios llamada 'detalles_pagos
+            match_aplazamiento = re.search(regex_aplazamiento, texto_completo)
+            if match_aplazamiento:
+                tipo_resolucion = match_aplazamiento.group(1)
+                tiempo_aplazamiento = match_aplazamiento.group(2)
+            else:
+                tipo_resolucion = "No especificado"
+                tiempo_aplazamiento = "No encontrado"
 
-        return redirect("alguna_url_despues_de_procesar")  # Redirigir a alguna parte
+            # Nueva lógica para extraer descripción, monto del tributo, interés y total
+            patron = r"(\d{6})\s+(\d{4})\s+(.+?)\s+(\d{3}\d{3}\d{7}\d{4})\s+([\d,\.]+)\s+([\d,\.]+)\s+([\d,\.]+)"
+            coincidencias = re.findall(patron, texto_completo, re.DOTALL)
+            if coincidencias:
+                # Asumiendo que solo quieres la última coincidencia para llenar los campos de la resolución
+                descripcion, monto_tributo, interes, total = coincidencias[-1]
+                # Ajustar la descripción
+                descripcion = " ".join(descripcion.split()[:-1])  # Remueve el número de documento al final, si es necesario
+            else:
+                # Valores predeterminados en caso de que no se encuentren coincidencias
+                descripcion = "Descripción no encontrada"
+                monto_tributo = "0"  # Asigna un valor de cadena en lugar de entero
+                interes = "0"  # Asigna un valor de cadena
+                total = "0"  # Asigna un valor de cadena
+
+            coincidencias_tabla = re.findall(regex_tabla, texto_completo)
+            datos_tabla = [{
+                "numero_cuota": fila[0],
+                "Vencimiento": fila[1],
+                "Amortización": fila[2],
+                "Interés": fila[3],
+                "Total": fila[4],
+                "Saldo": fila[5]
+            } for fila in coincidencias_tabla]
+
+            # Guardar los datos de la resolución en la base de datos
+            resolucion_obj = Resolucion(
+                numero_resolucion=numero_resolucion if numero_resolucion != "No encontrado" else None,
+                tipo_resolucion=tipo_resolucion,
+                tiempo_aplazamiento=tiempo_aplazamiento,
+                descripcion=descripcion,  # Nuevo campo
+                monto_tributo=Decimal(monto_tributo.replace(',', '')),
+                interes=Decimal(interes.replace(',', '')),
+                total=Decimal(total.replace(',', '')),
+                archivo_pdf=archivo_pdf
+            )
+            resolucion_obj.save()
+
+            # Guardar los datos de la tabla de pagos
+            for fila in datos_tabla:
+                Pago.objects.create(
+                    resolucion=resolucion_obj,
+                    numero_cuota=fila["numero_cuota"],
+                    vencimiento=datetime.strptime(fila["Vencimiento"], "%d/%m/%Y").date(),
+                    amortizacion=Decimal(fila["Amortización"].replace(',', '')),
+                    interes=Decimal(fila["Interés"].replace(',', '')),
+                    total=Decimal(fila["Total"].replace(',', '')),
+                    saldo=Decimal(fila["Saldo"].replace(',', ''))
+                )
+
+            # Redirigir al usuario a una página de confirmación o de resumen después del guardado
+            return redirect('lista_resoluciones')  # Asegúrate de reemplazar 'url_a_confirmacion' con la URL real
+
     else:
-        return render(request, "subir_pdf.html")  # La plantilla para subir el PDF
+        form = PDFUploadForm()
+    return render(request, 'cargar_pdf.html', {'form': form})
+
+
+#vistas de cronogramas sunat
+class ResolucionListView(ListView):
+    model = Resolucion
+    context_object_name = 'resoluciones'
+    template_name = 'resolucion_list.html'
+
+def detalle_resolucion(request, pk):
+    resolucion = get_object_or_404(Resolucion, pk=pk)
+    pagos = Pago.objects.filter(resolucion=resolucion)
+    
+    if request.method == 'POST':
+        form = PagoForm(request.POST, request.FILES)
+        if form.is_valid():
+            pago = form.save(commit=False)
+            pago.resolucion = resolucion  # Asegúrate de asignar la resolución correcta
+            pago.save()
+            return redirect('detalle_resolucion', pk=resolucion.pk)  # Redirigir para evitar doble envío
+    else:
+        form = PagoForm()  # Formulario vacío para solicitud GET
+    
+    return render(request, 'detalle_resolucion.html', {
+        'resolucion': resolucion,
+        'pagos': pagos,
+        'form': form  # Pasar el formulario al template
+    })

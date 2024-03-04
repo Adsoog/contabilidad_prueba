@@ -97,3 +97,5 @@ def create_or_update_orden_de_compra(sender, instance, created, **kwargs):
             # No es necesario definir precio_total aquí ya que se calcula en el método save de OrdenDeCompra
         },
     )
+
+

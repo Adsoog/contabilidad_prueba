@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import crear_cronograma, ver_cronogramas_filtrados
+from .views import ResolucionListView, cargar_pdf, crear_cronograma, detalle_resolucion, ver_cronogramas_filtrados
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
@@ -31,4 +31,11 @@ urlpatterns = [
     path(
         "editar-fecha/<int:pago_id>/", views.editar_fecha_pago, name="editar_fecha_pago"
     ),
+
+
+    # cargar pdf y esoso metoditos
+    path('cargar-pdf/', cargar_pdf, name='cargar_pdf'),
+    path('resoluciones/', ResolucionListView.as_view(), name='lista_resoluciones'),
+    path('resoluciones/<int:pk>/', detalle_resolucion, name='detalle_resolucion'),
+
 ]

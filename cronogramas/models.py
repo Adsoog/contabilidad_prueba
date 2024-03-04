@@ -55,16 +55,21 @@ def crear_pagos(sender, instance, created, **kwargs):
                 fecha_pago=fecha_actual,
                 monto_pago=instance.monto_cuota,
             )
-
-
 class Resolucion(models.Model):
-    numero = models.CharField(max_length=20, unique=True)
-    tipo = models.CharField(max_length=50)
-    tiempo_aplazamiento = models.IntegerField(
-        help_text="Tiempo de aplazamiento en meses"
-    )
+    numero_resolucion = models.CharField(max_length=255)
+    tipo_resolucion = models.CharField(max_length=255)
+    tiempo_aplazamiento = models.CharField(max_length=255)
+    archivo_pdf = models.FileField(upload_to='pdfs/')
+    descripcion = models.TextField()  # Campo añadido para la descripción
+    monto_tributo = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    interes = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
 
+    def __str__(self):
+        return self.numero_resolucion
+
+#este otro no
 class DetallePago(models.Model):
     resolucion = models.ForeignKey(
         Resolucion, on_delete=models.CASCADE, related_name="detalles_pago"
@@ -75,3 +80,18 @@ class DetallePago(models.Model):
     interes = models.DecimalField(max_digits=10, decimal_places=2)
     total = models.DecimalField(max_digits=10, decimal_places=2)
     saldo = models.DecimalField(max_digits=10, decimal_places=2)
+
+
+#este sirve
+class Pago(models.Model):
+    resolucion = models.ForeignKey(Resolucion, related_name='pagos', on_delete=models.CASCADE)
+    numero_cuota = models.CharField(max_length=255)
+    vencimiento = models.DateField()
+    amortizacion = models.DecimalField(max_digits=10, decimal_places=2)
+    interes = models.DecimalField(max_digits=10, decimal_places=2)
+    total = models.DecimalField(max_digits=10, decimal_places=2)
+    saldo = models.DecimalField(max_digits=10, decimal_places=2)
+    pago_sunat = models.FileField(upload_to='pagos_sunat/', null=True, blank=True)  # Campo opcional para archivo PDF
+
+    def __str__(self):
+        return f"{self.resolucion} - Cuota {self.numero_cuota}"

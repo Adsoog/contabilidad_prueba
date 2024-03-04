@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="mb-4">Lista de Resoluciones</h2>
+<div class="list-group">
+  {% for resolucion in resoluciones %}
+    <a href="{% url 'detalle_resolucion' resolucion.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+      {{ resolucion.numero_resolucion }} - {{ resolucion.tipo_resolucion }}
+      <span class="badge badge-primary badge-pill">Ver Pagos</span>
+    </a>
+    <h3>Cargar PDF de Pago</h3>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Cargar PDF</button>
+</form>
+  {% endfor %}
+</div>
+{% endblock %}
