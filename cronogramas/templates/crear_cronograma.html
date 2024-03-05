@@ -19,6 +19,8 @@
       grid-gap: 5px;
       max-width: 350px;
       margin-top: 20px;
+      margin-right: 20px; /* Añadido margen a la derecha */
+      margin-left: 20px; /* Añadido margen a la izquierda */
   }
 
   .dia, .fecha {
@@ -45,6 +47,33 @@
       padding: 5px;
   }
 
+  /* Estilos para los meses */
+  .meses {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      margin-right: 20px; /* Añadido margen a la derecha */
+      margin-left: 20px; /* Añadido margen a la izquierda */
+      padding: 10px;
+      width: calc(100% - 40px); /* Ancho calculado para restar el margen izquierdo y derecho */
+      background-color: #f0f0f0;
+      border-radius: 5px;
+  }
+
+  .meses select {
+      flex: 1; /* Para que ocupen el mismo ancho */
+      font-size: 16px;
+      padding: 5px;
+      border: none;
+      background-color: transparent;
+      appearance: none; /* Oculta las flechas del select en algunos navegadores */
+  }
+
+  .meses select option {
+      background-color: #f0f0f0; /* Color de fondo */
+      border: none;
+      color: #333; /* Color del texto */
+  }
 </style>
 
 <div class="container">
@@ -91,32 +120,25 @@
       </div>
       <!-- Calendario Dinámico -->
       <div class="mt-4">
-        <h4>Calendario</h4>
-        <select id="mesSelector">
-          <option value="0">Enero</option>
-          <option value="1">Febrero</option>
-          <option value="2">Marzo</option>
-          <option value="3">Abril</option>
-          <option value="4">Mayo</option>
-          <option value="5">Junio</option>
-          <option value="6">Julio</option>
-          <option value="7">Agosto</option>
-          <option value="8">Septiembre</option>
-          <option value="9">Octubre</option>
-          <option value="10">Noviembre</option>
-          <option value="11">Diciembre</option>
-      </select>
-
-        <div class="calendario">
-          <div class="dia">Lun</div>
-          <div class="dia">Mar</div>
-          <div class="dia">Mie</div>
-          <div class="dia">Jue</div>
-          <div class="dia">Vie</div>
-          <div class="dia">Sab</div>
-          <div class="dia">Dom</div>
+        <div class="meses">
+          <select id="mesSelector">
+            <option value="0">Enero</option>
+            <option value="1">Febrero</option>
+            <option value="2">Marzo</option>
+            <option value="3">Abril</option>
+            <option value="4">Mayo</option>
+            <option value="5">Junio</option>
+            <option value="6">Julio</option>
+            <option value="7">Agosto</option>
+            <option value="8">Septiembre</option>
+            <option value="9">Octubre</option>
+            <option value="10">Noviembre</option>
+            <option value="11">Diciembre</option>
+          </select>
+        </div>
+        <div class="calendario" style="width: calc(100% - 40px);"> <!-- Ajuste del ancho -->
           <!-- Los días se añadirán aquí dinámicamente -->
-      </div>
+        </div>
       </div>
     </div>
 
@@ -158,7 +180,5 @@
     mesSelector.value = new Date().getMonth();
     generarCalendario(parseInt(mesSelector.value));
 </script>
-
-
 
 {% endblock %}
