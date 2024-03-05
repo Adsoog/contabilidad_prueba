@@ -1,15 +1,15 @@
 from django import forms
-from .models import Cronograma, Pago, PagoCronograma
+from .models import Cronograma, Pago, PagoCronograma, Resolucion
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 
 
 class CronogramaForm(forms.ModelForm):
     fecha_inicio = forms.DateField(
-        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
+        widget=forms.DateInput(attrs={"type": "date", "class": "form-control"})
     )
     fecha_desembolso = forms.DateField(
-        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
+        widget=forms.DateInput(attrs={"type": "date", "class": "form-control"})
     )
     # Agrega cualquier otro campo de fecha que necesites de manera similar
 
@@ -25,8 +25,12 @@ class CronogramaForm(forms.ModelForm):
 
         # Aplica estilos a otros campos si es necesario
         for field_name, field in self.fields.items():
-            if field_name not in ['fecha_inicio', 'fecha_fin']:  # Evita sobrescribir la clase para los campos de fecha ya definidos
+            if field_name not in [
+                "fecha_inicio",
+                "fecha_fin",
+            ]:  # Evita sobrescribir la clase para los campos de fecha ya definidos
                 field.widget.attrs["class"] = "form-control"
+
 
 # forms htmx
 class EditarMontoForm(forms.ModelForm):
@@ -53,11 +57,13 @@ class EditarFechaPagoForm(forms.ModelForm):
         }
 
 
-#METODO PDF
+# METODO PDF
 class PDFUploadForm(forms.Form):
-    archivo_pdf = forms.FileField(label='Selecciona un archivo PDF')
+    archivo_pdf = forms.FileField(label="Selecciona un archivo PDF")
+
 
 class PagoForm(forms.ModelForm):
     class Meta:
         model = Pago
-        fields = ['pago_sunat']
+        fields = ["pago_sunat"]
+

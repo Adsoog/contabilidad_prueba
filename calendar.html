@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Calendario Dinámico</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        height: 100vh;
+    }
+
+    .calendario {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr); /* 7 días de la semana */
+        grid-gap: 5px;
+        max-width: 350px;
+        margin-top: 20px;
+    }
+
+    .dia, .fecha {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 50px;
+        background-color: #f0f0f0;
+        border: 1px solid #dcdcdc;
+    }
+
+    .dia {
+        background-color: #e0e0e0;
+        font-weight: bold;
+    }
+
+    .fecha:hover {
+        background-color: #c0c0c0;
+        cursor: pointer;
+    }
+
+    select {
+        font-size: 16px;
+        padding: 5px;
+    }
+
+</style>
+</head>
+<body>
+
+<select id="mesSelector">
+    <option value="0">Enero</option>
+    <option value="1">Febrero</option>
+    <option value="2">Marzo</option>
+    <option value="3">Abril</option>
+    <option value="4">Mayo</option>
+    <option value="5">Junio</option>
+    <option value="6">Julio</option>
+    <option value="7">Agosto</option>
+    <option value="8">Septiembre</option>
+    <option value="9">Octubre</option>
+    <option value="10">Noviembre</option>
+    <option value="11">Diciembre</option>
+</select>
+
+<div class="calendario">
+    <div class="dia">Lun</div>
+    <div class="dia">Mar</div>
+    <div class="dia">Mie</div>
+    <div class="dia">Jue</div>
+    <div class="dia">Vie</div>
+    <div class="dia">Sab</div>
+    <div class="dia">Dom</div>
+    <!-- Los días se añadirán aquí dinámicamente -->
+</div>
+
+<script>
+    const mesSelector = document.getElementById('mesSelector');
+    const calendario = document.querySelector('.calendario');
+
+    function limpiarCalendario() {
+        while (calendario.children.length > 7) {
+            calendario.removeChild(calendario.lastChild);
+        }
+    }
+
+    function generarCalendario(mes) {
+        limpiarCalendario();
+        const hoy = new Date();
+        const año = hoy.getFullYear();
+        const ultimoDia = new Date(año, mes + 1, 0).getDate();
+
+        for (let i = 1; i <= ultimoDia; i++) {
+            const dia = document.createElement('div');
+            dia.classList.add('fecha');
+            dia.textContent = i;
+            calendario.appendChild(dia);
+        }
+    }
+
+    mesSelector.addEventListener('change', () => {
+        generarCalendario(parseInt(mesSelector.value));
+    });
+
+    // Generar calendario para el mes actual al cargar la página
+    mesSelector.value = new Date().getMonth();
+    generarCalendario(parseInt(mesSelector.value));
+</script>
+
+</body>
+</html>

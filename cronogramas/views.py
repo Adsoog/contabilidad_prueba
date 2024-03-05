@@ -4,9 +4,14 @@ from decimal import Decimal
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse, JsonResponse
 from django.views.generic.list import ListView
-from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_http_methods
-from .forms import EditarFechaPagoForm, EditarMontoForm, CambiarPDFPagoForm, PDFUploadForm, PagoForm
+from .forms import (
+    EditarFechaPagoForm,
+    EditarMontoForm,
+    CambiarPDFPagoForm,
+    PDFUploadForm,
+    PagoForm,
+)
 from .models import DetallePago, PagoCronograma, Resolucion
 from cronogramas.models import Cronograma, PagoCronograma
 from .forms import CronogramaForm  # Importa el formulario de Cronograma
@@ -18,7 +23,8 @@ from django.shortcuts import render, redirect
 from .forms import PDFUploadForm
 from .models import Resolucion, Pago
 import pdfplumber
-import re
+from django.contrib import messages
+from django.views.decorators.http import require_POST
 
 
 def crear_cronograma(request):
@@ -116,10 +122,10 @@ def editar_fecha_pago(request, pago_id):
 
 # METODO CON PDF PARA SUNAT aqui abajo se veran cosas tenebrosas :()
 def cargar_pdf(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = PDFUploadForm(request.POST, request.FILES)
         if form.is_valid():
-            archivo_pdf = request.FILES['archivo_pdf']
+            archivo_pdf = request.FILES["archivo_pdf"]
             texto_completo = ""
             with pdfplumber.open(archivo_pdf) as pdf:
                 for pagina in pdf.pages:
@@ -132,7 +138,6 @@ def cargar_pdf(request):
             regex_aplazamiento = r"(Aplazamiento con Fraccionamiento|Fraccionamiento|Aplazamiento) por (\d+) mes\(es\)"
             regex_tabla = r"([A-Z]+|\d+)\s(\d{2}\/\d{2}\/\d{4})\s([\d,\.]+)\s([\d,\.]+)\s([\d,\.]+)\s([\d,\.]+)"
 
-            
             numero_resolucion = re.search(regex_resolucion, texto_completo)
             if numero_resolucion:
                 numero_resolucion = numero_resolucion.group(1)
@@ -154,7 +159,9 @@ def cargar_pdf(request):
                 # Asumiendo que solo quieres la última coincidencia para llenar los campos de la resolución
                 descripcion, monto_tributo, interes, total = coincidencias[-1]
                 # Ajustar la descripción
-                descripcion = " ".join(descripcion.split()[:-1])  # Remueve el número de documento al final, si es necesario
+                descripcion = " ".join(
+                    descripcion.split()[:-1]
+                )  # Remueve el número de documento al final, si es necesario
             else:
                 # Valores predeterminados en caso de que no se encuentren coincidencias
                 descripcion = "Descripción no encontrada"
@@ -163,25 +170,30 @@ def cargar_pdf(request):
                 total = "0"  # Asigna un valor de cadena
 
             coincidencias_tabla = re.findall(regex_tabla, texto_completo)
-            datos_tabla = [{
-                "numero_cuota": fila[0],
-                "Vencimiento": fila[1],
-                "Amortización": fila[2],
-                "Interés": fila[3],
-                "Total": fila[4],
-                "Saldo": fila[5]
-            } for fila in coincidencias_tabla]
+            datos_tabla = [
+                {
+                    "numero_cuota": fila[0],
+                    "Vencimiento": fila[1],
+                    "Amortización": fila[2],
+                    "Interés": fila[3],
+                    "Total": fila[4],
+                    "Saldo": fila[5],
+                }
+                for fila in coincidencias_tabla
+            ]
 
             # Guardar los datos de la resolución en la base de datos
             resolucion_obj = Resolucion(
-                numero_resolucion=numero_resolucion if numero_resolucion != "No encontrado" else None,
+                numero_resolucion=(
+                    numero_resolucion if numero_resolucion != "No encontrado" else None
+                ),
                 tipo_resolucion=tipo_resolucion,
                 tiempo_aplazamiento=tiempo_aplazamiento,
                 descripcion=descripcion,  # Nuevo campo
-                monto_tributo=Decimal(monto_tributo.replace(',', '')),
-                interes=Decimal(interes.replace(',', '')),
-                total=Decimal(total.replace(',', '')),
-                archivo_pdf=archivo_pdf
+                monto_tributo=Decimal(monto_tributo.replace(",", "")),
+                interes=Decimal(interes.replace(",", "")),
+                total=Decimal(total.replace(",", "")),
+                archivo_pdf=archivo_pdf,
             )
             resolucion_obj.save()
 
@@ -190,43 +202,64 @@ def cargar_pdf(request):
                 Pago.objects.create(
                     resolucion=resolucion_obj,
                     numero_cuota=fila["numero_cuota"],
-                    vencimiento=datetime.strptime(fila["Vencimiento"], "%d/%m/%Y").date(),
-                    amortizacion=Decimal(fila["Amortización"].replace(',', '')),
-                    interes=Decimal(fila["Interés"].replace(',', '')),
-                    total=Decimal(fila["Total"].replace(',', '')),
-                    saldo=Decimal(fila["Saldo"].replace(',', ''))
+                    vencimiento=datetime.strptime(
+                        fila["Vencimiento"], "%d/%m/%Y"
+                    ).date(),
+                    amortizacion=Decimal(fila["Amortización"].replace(",", "")),
+                    interes=Decimal(fila["Interés"].replace(",", "")),
+                    total=Decimal(fila["Total"].replace(",", "")),
+                    saldo=Decimal(fila["Saldo"].replace(",", "")),
                 )
 
             # Redirigir al usuario a una página de confirmación o de resumen después del guardado
-            return redirect('lista_resoluciones')  # Asegúrate de reemplazar 'url_a_confirmacion' con la URL real
+            return redirect(
+                "lista_resoluciones"
+            )  # Asegúrate de reemplazar 'url_a_confirmacion' con la URL real
 
     else:
         form = PDFUploadForm()
-    return render(request, 'cargar_pdf.html', {'form': form})
+    return render(request, "cargar_pdf.html", {"form": form})
 
 
-#vistas de cronogramas sunat
+# vistas de cronogramas sunat
 class ResolucionListView(ListView):
     model = Resolucion
-    context_object_name = 'resoluciones'
-    template_name = 'resolucion_list.html'
+    context_object_name = "resoluciones"
+    template_name = "resolucion_list.html"
+
+
+@require_POST  # Asegura que esta vista solo pueda ser accedida mediante un método POST
+def eliminar_resolucion(request, pk):
+    resolucion = get_object_or_404(Resolucion, pk=pk)
+    resolucion.delete()
+    messages.success(request, "Resolución eliminada con éxito.")
+    return redirect(reverse("lista_resoluciones"))
+
 
 def detalle_resolucion(request, pk):
     resolucion = get_object_or_404(Resolucion, pk=pk)
     pagos = Pago.objects.filter(resolucion=resolucion)
-    
-    if request.method == 'POST':
-        form = PagoForm(request.POST, request.FILES)
+
+    # No necesitas manejar el método POST ni el formulario en esta vista
+    return render(
+        request,
+        "detalle_resolucion.html",
+        {
+            "resolucion": resolucion,
+            "pagos": pagos,
+        },
+    )
+
+
+def cambiar_pdf_pago_sunat(request, pk):
+    if request.method == "POST":
+        pago = get_object_or_404(Pago, pk=pk)
+        form = PagoForm(request.POST, request.FILES, instance=pago)
         if form.is_valid():
-            pago = form.save(commit=False)
-            pago.resolucion = resolucion  # Asegúrate de asignar la resolución correcta
-            pago.save()
-            return redirect('detalle_resolucion', pk=resolucion.pk)  # Redirigir para evitar doble envío
-    else:
-        form = PagoForm()  # Formulario vacío para solicitud GET
-    
-    return render(request, 'detalle_resolucion.html', {
-        'resolucion': resolucion,
-        'pagos': pagos,
-        'form': form  # Pasar el formulario al template
-    })
+            form.save()
+            # Retorna algo adecuado para htmx, por ejemplo, un enlace al nuevo PDF
+            return HttpResponse(
+                f'<a href="{pago.pago_sunat.url}" target="_blank">Ver Documento</a>'
+            )
+    # Manejar caso de error o solicitud no POST
+    return HttpResponse("Operación no permitida", status=405)
