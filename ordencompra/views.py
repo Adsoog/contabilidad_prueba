@@ -2,8 +2,11 @@ from django.shortcuts import get_object_or_404, render, redirect
 from ordenventa.models import OrdenDeCompra, OrdenVenta
 from .models import OrdenCompra, OrdenPago
 from .forms import OrdenCompraForm, OrdenPagoForm
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.template.loader import render_to_string
+from django.db.models import Q
+from django.utils.dateparse import parse_date
+from django.views.decorators.csrf import csrf_exempt
 
 
 def lista_ordenes_compra2(request):
@@ -92,3 +95,61 @@ def detalle_orden_compra(request, pk):
         "detalle_orden_compra.html",
         {"orden_venta": orden_venta, "ordenes_compra": ordenes_compra},
     )
+
+
+#para actulizar con el pago y comprobante:
+def ver_detalles_pago(request, ordenventa_id=None):
+    ordenes_de_pago = []
+    ordenventa = None
+    fecha = None
+
+    if ordenventa_id:
+        ordenventa = get_object_or_404(OrdenVenta, pk=ordenventa_id)
+        ordenes_de_pago = OrdenDeCompra.objects.filter(
+            item_orden_venta__ordenventa=ordenventa, precio_total__gt=0.00
+        )
+    else:
+        fecha_str = request.GET.get("fecha_pago")
+        if fecha_str:
+            fecha = parse_date(fecha_str)
+            if fecha:
+                ordenes_de_pago = OrdenDeCompra.objects.filter(
+                    Q(fecha_pago=fecha) | Q(fecha_pagada=fecha), precio_total__gt=0.00
+                )
+
+    context = {
+        "ordenes_de_pago": ordenes_de_pago,
+        "ordenventa": ordenventa,
+        "fecha": fecha,
+    }
+    return render(request, "ver_detalles_pago.html", context)
+
+# actulaiar el html ;
+@csrf_exempt  # Considera la seguridad al usar CSRF exempt
+def actualizar_pago(request, pk):
+    if request.method == 'POST':
+        orden = get_object_or_404(OrdenDeCompra, pk=pk)
+        
+        # Actualizar monto_pagado
+        monto_pagado = request.POST.get('monto_pagado')
+        if monto_pagado is not None:
+            orden.monto_pagado = monto_pagado
+        
+        # Actualizar fecha_pagada
+        fecha_pagada_str = request.POST.get('fecha_pagada')
+        if fecha_pagada_str:
+            orden.fecha_pagada = parse_date(fecha_pagada_str)
+        
+        # Actualizar comprobante_pago si hay un archivo
+        comprobante = request.FILES.get('comprobante_pago')
+        if comprobante:
+            orden.comprobante_pago = comprobante
+
+        orden.save()
+
+        # Puedes decidir el tipo de respuesta dependiendo de tu flujo de trabajo
+        # Si estás usando htmx, podrías querer devolver una respuesta JSON
+        return JsonResponse({'status': 'success'})
+
+    # Si no es POST, puedes decidir qué hacer, redirigir a otra página quizás
+    return redirect('alguna_url_de_redireccionamiento')

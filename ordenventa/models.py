@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -61,6 +62,9 @@ class OrdenDeCompra(models.Model):
     )
     cuotas = models.IntegerField(default=0)
     fecha_pago = models.DateField(null=True, blank=True, verbose_name="Fecha de Pago")
+    fecha_pagada = models.DateField(null=True, blank=True, verbose_name="Fecha Pagada")
+    monto_detraccion = models.DecimalField(max_digits=10, decimal_places=2, default=0, editable=False)
+    monto_pagado = models.DecimalField(max_digits=10, decimal_places=2, default=0, editable=False)
     # Añade el campo comprobante_pago
     comprobante_pago = models.FileField(
         upload_to="comprobantes_pago/",  # Directorio donde se guardarán los archivos
@@ -73,9 +77,15 @@ class OrdenDeCompra(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        self.precio_total = self.cantidad * self.precio_actual * (
-            1 + self.igv / 100
-        ) - (self.cantidad * self.precio_actual * self.detraccion / 100)
+        # Convertir todos los valores a Decimal antes de realizar cálculos
+        cantidad_decimal = Decimal(self.cantidad)
+        precio_actual_decimal = Decimal(self.precio_actual)
+        igv_decimal = Decimal(self.igv) / Decimal(100)
+        detraccion_decimal = Decimal(self.detraccion) / Decimal(100)
+
+        self.precio_total = cantidad_decimal * precio_actual_decimal * (Decimal(1) + igv_decimal) - (cantidad_decimal * precio_actual_decimal * detraccion_decimal)
+        self.monto_detraccion = cantidad_decimal * precio_actual_decimal * detraccion_decimal
+
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -99,3 +109,39 @@ def create_or_update_orden_de_compra(sender, instance, created, **kwargs):
     )
 
 
+
+### mmodelo orden de cobranza
+
+class CobrosOrdenVenta(models.Model):
+    TIPO_MONEDA_CHOICES = (
+        ('soles', 'Soles'),
+        ('dolares', 'Dólares'),
+    )
+    TIPO_COBRO_CHOICES = (
+        ('factoring', 'Factoring'),
+        ('directo', 'Directo'),
+    )
+
+    orden_venta = models.ForeignKey(OrdenVenta, on_delete=models.CASCADE, related_name='cobros')
+    serie_correlativo = models.CharField(max_length=255)
+    fecha_emision_factura = models.DateField()
+    cliente_factura = models.CharField(max_length=255)
+    ruc_factura = models.CharField(max_length=11)
+    tipo_moneda = models.CharField(max_length=7, choices=TIPO_MONEDA_CHOICES)
+    descripcion_factura = models.TextField()
+    importe_total = models.DecimalField(max_digits=10, decimal_places=2)
+    detraccion = models.DecimalField(max_digits=5, decimal_places=2, help_text='Porcentaje de la detracción')
+    neto_total = models.DecimalField(max_digits=10, decimal_places=2, editable=False)
+    tipo_cobro_factura = models.CharField(max_length=9, choices=TIPO_COBRO_CHOICES)
+    dscto_factoring = models.DecimalField(max_digits=5, decimal_places=2, help_text='Porcentaje del descuento por factoring', default=0)
+    extracto_banco = models.ForeignKey('extractos.ExtractosBancarios', on_delete=models.SET_NULL, null=True, blank=True)
+
+
+    def save(self, *args, **kwargs):
+        self.neto_total = self.importe_total - (self.importe_total * self.detraccion / 100)
+        if self.tipo_cobro_factura == 'factoring':
+            self.neto_total -= self.neto_total * self.dscto_factoring / 100
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.serie_correlativo} - {self.cliente_factura}"

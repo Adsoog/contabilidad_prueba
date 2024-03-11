@@ -53,13 +53,11 @@
                     <th>Cantidad</th>
                     <th>SAP</th>
                     <th>Precio</th>
-                    <th>IGV (%)</th>
                     <th>Detra (%)</th>
                     <th>Total</th>
                     <th>Proveedor</th>
                     <th>Cuotas</th>
                     <th>Fecha de pago</th>
-                    <th>Comprobante</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -71,7 +69,6 @@
                     <td><input class="input-corto" form="form-{{ orden.id }}" type="number" name="cantidad" value="{{ orden.cantidad }}" /></td>
                     <td>{{ orden.codigo_sap }}</td>
                     <td><input class="input-medio" form="form-{{ orden.id }}" type="number" name="precio_actual" value="{{ orden.precio_actual }}" /></td>
-                    <td><input class="input-corto" form="form-{{ orden.id }}" type="number" name="igv" value="{{ orden.igv }}" /></td>
                     <td><input class="input-corto" form="form-{{ orden.id }}" type="number" name="detraccion" value="{{ orden.detraccion }}" /></td>
                     <td id="precio-total-{{ orden.id }}">{{ orden.precio_total }}</td>
                     <td>
@@ -89,9 +86,6 @@
                     <td><input class="input-corto" form="form-{{ orden.id }}" type="number" name="cuotas" value="{{ orden.cuotas }}"></td>
                     <td>
                         <input class="input-medio" form="form-{{ orden.id }}" type="date" name="fecha_pago" value="{{ orden.fecha_pago|date:'Y-m-d' }}">
-                    </td>
-                    <td>
-                        <input form="form-{{ orden.id }}" type="file" name="comprobante_pago" accept=".pdf">
                     </td>
                     <td>
                         <form id="form-{{ orden.id }}" hx-post="{% url 'actualizar_orden_compra' orden.id %}" hx-target="#precio-total-{{ orden.id }}" hx-swap="outerHTML" method="post" enctype="multipart/form-data">

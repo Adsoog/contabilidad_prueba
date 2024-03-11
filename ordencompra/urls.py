@@ -5,13 +5,13 @@ from .views import (
     lista_ordenes_venta,
     detalle_orden_compra,
     lista_ordenes_compra2,
-    crear_orden_compra,
     ordenpago,
+    ver_detalles_pago,
+    actualizar_pago
 )
 
 urlpatterns = [
     path("listascreo", lista_ordenes_compra2, name="lista_ordenes_compra"),
-    path("crear_orden_compra/", crear_orden_compra, name="crear_orden_compra"),
     path("ordenpago/", ordenpago, name="ordenpago"),
     path("", lista_ordenes_venta, name="lista_ordenes_venta"),
     path(
@@ -25,4 +25,7 @@ urlpatterns = [
     path(
         "ordenes-pago/filtrar/", ver_ordenes_pago, name="filtrar_ordenes_pago_por_fecha"
     ),
+    path('ordenes-pago/detalles-pago/<int:ordenventa_id>/', ver_detalles_pago, name='ver_detalles_pago'),
+    path('ordenes-pago/actualizar/<int:pk>/', actualizar_pago, name='actualizar_pago'),
+
 ]

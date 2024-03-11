@@ -120,7 +120,7 @@ def editar_fecha_pago(request, pago_id):
     return render(request, "editar_fecha_pago.html", {"form": form, "pago": pago})
 
 
-# METODO CON PDF PARA SUNAT aqui abajo se veran cosas tenebrosas :()
+# METODO CON PDF PARA SUNAT aqui abajo se veran cosas tenebrosas :O
 def cargar_pdf(request):
     if request.method == "POST":
         form = PDFUploadForm(request.POST, request.FILES)

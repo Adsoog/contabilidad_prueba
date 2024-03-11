@@ -213,6 +213,8 @@ def actualizar_orden_de_compra(request, id):
             if comprobante_pago:
                 orden_de_compra.comprobante_pago = comprobante_pago
 
+                
+
             orden_de_compra.save()
             # Aquí puedes decidir cómo responder después de actualizar la orden de compra.
             return HttpResponse(
@@ -257,6 +259,40 @@ def ver_ordenes_pago(request, ordenventa_id=None):
         "fecha": fecha,  # Usa la variable fecha directamente
     }
     return render(request, "ver_orden_pago.html", context)
+
+
+### Ordenes de cobranza :UUUUU
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # desde aqui no hay nada interesante :P
