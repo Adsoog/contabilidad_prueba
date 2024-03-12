@@ -7,6 +7,8 @@ from .views import (
     OrdenVentaCRUDView,
     actualizar_orden_de_compra,
     procesar_orden_venta_excel,
+    upload_pdf_cobro,
+    ver_cobros_orden_venta,
     ver_items_orden_venta,
     ver_ordenes_compra,
     ver_ordenes_pago,
@@ -60,4 +62,22 @@ urlpatterns = [
         views.ver_ordenes_pago,
         name="ver_ordenes_pago",
     ),
+    # cobros :P
+    path('ver_cobros_orden_venta/<int:ordenventa_id>/', ver_cobros_orden_venta, name='ver_cobros_orden_venta'),
+    # cobro automatico:
+    path('upload-pdf-cobro/<int:ordenventa_id>/', upload_pdf_cobro, name='upload_pdf_cobro'),
+    #ver coborso
+    path('ordenventa/<int:ordenventa_id>/facturas/', views.ver_facturas_por_ordenventa, name='ver_facturas_por_ordenventa'),
+    path('ordenventa/editar/<int:factura_id>/', views.editar_factura, name='editar_factura'),
+    path('ordenventa/factura/eliminar/<int:factura_id>/', views.eliminar_factura, name='eliminar_factura'),
+   
+
+
+    
+
+    
+   
+
+
+
 ]

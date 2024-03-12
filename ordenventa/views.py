@@ -1,18 +1,24 @@
-from rest_framework import generics
-from django.http import HttpResponse, JsonResponse
-from inventario.models import Inventario
-from reportes.models import Proveedor
-from .models import OrdenDeCompra, OrdenVenta, ItemOrdenVenta
-from .serializers import OrdenVentaSerializer, ItemOrdenVentaSerializer
+from datetime import datetime
+from decimal import Decimal
+import re
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render, get_object_or_404
+from django.urls import reverse, reverse_lazy
 from django.views import View
-from django.urls import reverse_lazy
-from django.http import HttpResponseRedirect, JsonResponse
-from .forms import ItemOrdenVentaForm, OrdenVentaForm, OrdenVentaUploadForm
-from openpyxl import load_workbook
 from django.db import transaction
 from django.template.loader import render_to_string
 from django.utils.dateparse import parse_date
+from openpyxl import load_workbook
+import pdfplumber
+from rest_framework import generics
+from inventario.models import Inventario
+from reportes.models import Proveedor
+from .models import FacturaElectronica, OrdenDeCompra, OrdenVenta, ItemOrdenVenta, CobrosOrdenVenta
+from .serializers import OrdenVentaSerializer, ItemOrdenVentaSerializer
+from .forms import FacturaElectronicaForm, ItemOrdenVentaForm, OrdenVentaForm, OrdenVentaUploadForm, CobrosOrdenVentaForm
+from django.views.generic.edit import CreateView
+from django.views.generic import ListView
+
 
 
 # antiguos view debemos depurar despues
@@ -262,11 +268,156 @@ def ver_ordenes_pago(request, ordenventa_id=None):
 
 
 ### Ordenes de cobranza :UUUUU
+# usaremos una clase para eso pra probar igual no me pagan por innovar
+# prbe y resutla mas facil hacerlo con una funcion talvez?? necesito mas exp para saber cual es mejor por ahora solo def
+def ver_cobros_orden_venta(request, ordenventa_id):
+    orden_venta = get_object_or_404(OrdenVenta, id=ordenventa_id)
+    cobros = CobrosOrdenVenta.objects.filter(orden_venta=orden_venta)
+
+    return render(request, 'cobros/lista_cobros_orden_venta.html', {
+        'orden_venta': orden_venta,
+        'cobros': cobros
+    })
+
+
+## vista automatica de facturas okokokok
+def ver_facturas_por_ordenventa(request, ordenventa_id):
+    # Buscar la orden de venta específica
+    orden_venta = get_object_or_404(OrdenVenta, pk=ordenventa_id)
+
+    # Buscar todas las facturas asociadas a esta orden de venta
+    facturas = FacturaElectronica.objects.filter(orden_venta=orden_venta)
+
+    # Pasar las facturas al contexto para ser mostradas en la plantilla
+    context = {
+        'orden_venta': orden_venta,
+        'facturas': facturas,
+    }
+
+    return render(request, 'cobros/ver_facturas.html', context)
 
 
 
+def eliminar_factura(request, factura_id):
+    factura = get_object_or_404(FacturaElectronica, pk=factura_id)
+    orden_venta_id = factura.orden_venta.id
+    factura.delete()
+    return redirect(reverse('ver_facturas_por_ordenventa', kwargs={'ordenventa_id': orden_venta_id}))
 
 
+## editar factura:
+def editar_factura(request, factura_id):
+    factura = get_object_or_404(FacturaElectronica, pk=factura_id)
+    if request.method == 'POST':
+        form = FacturaElectronicaForm(request.POST, instance=factura)
+        if form.is_valid():
+            form.save()
+            # Si usas HTMX, puedes querer devolver un fragmento actualizado en lugar de hacer una redirección completa
+            return HttpResponse(render_to_string('fragmentos/factura_actualizada.html', {'factura': factura}))
+    else:
+        form = FacturaElectronicaForm(instance=factura)
+    
+    return HttpResponse(render_to_string('fragmentos/formulario_editar_factura.html', {'form': form, 'factura_id': factura.id}))
+
+#Subir pdf ok para facturas  ok oko ok ok oko  
+def upload_pdf_cobro(request, ordenventa_id):
+    orden_venta = get_object_or_404(OrdenVenta, pk=ordenventa_id)
+    if request.method == "POST":
+        pdf_file = request.FILES.get('pdf_file')
+        if pdf_file:
+            texto_completo = ""
+            with pdfplumber.open(pdf_file) as pdf:
+                for pagina in pdf.pages:
+                    texto_completo += pagina.extract_text() + "\n"
+            
+            # Aquí incluyes todo el código de extracción que has definido anteriormente
+            # Asegúrate de ajustar el manejo de los datos según sea necesario
+            # Por ejemplo, asegúrate de convertir las cadenas de fechas y decimales correctamente
+            # Buscar la serie y el correlativo
+            patron_serie_correlativo = r"E\d{3}-\d+"
+            resultado_serie_correlativo = re.search(patron_serie_correlativo, texto_completo)
+            serie_correlativo = resultado_serie_correlativo.group() if resultado_serie_correlativo else "No encontrado"
+
+            # Buscar la fecha de emisión
+            patron_fecha_emision = r"Fecha de Emisión\s*:\s*(\d{2}/\d{2}/\d{4})"
+            resultado_fecha_emision = re.search(patron_fecha_emision, texto_completo)
+            fecha_emision = resultado_fecha_emision.group(1) if resultado_fecha_emision else "No encontrado"
+
+            # Buscar el cliente (Señor(es))
+            patron_cliente = r"Señor\(es\) :\s*(.*)\n"
+            resultado_cliente = re.search(patron_cliente, texto_completo)
+            cliente = resultado_cliente.group(1) if resultado_cliente else "No encontrado"
+
+            # Buscar el RUC del cliente
+            patron_ruc_cliente = r"RUC :\s*(\d+)"
+            resultado_ruc_cliente = re.search(patron_ruc_cliente, texto_completo)
+            ruc_cliente = resultado_ruc_cliente.group(1) if resultado_ruc_cliente else "No encontrado"
+
+            # Buscar el tipo de moneda
+            patron_tipo_moneda = r"Tipo de Moneda\s*:\s*(.*)\n"
+            resultado_tipo_moneda = re.search(patron_tipo_moneda, texto_completo)
+            tipo_moneda = resultado_tipo_moneda.group(1) if resultado_tipo_moneda else "No encontrado"
+
+            # Ajustar la búsqueda de la descripción para que termine antes de los detalles financieros
+            # Suponiendo que "Segun OS" marca el final relevante de la descripción del servicio
+            patron_descripcion = r"Descripción\s*(.*?)(?=Sub Total Ventas|$)"
+            resultado_descripcion = re.search(patron_descripcion, texto_completo, re.DOTALL)
+            descripcion = resultado_descripcion.group(1).strip() if resultado_descripcion else "No encontrado"
+
+
+            # Buscar el importe total
+            patron_importe_total = r"Importe Total\s*:\s*\$(.*)\n"
+            resultado_importe_total = re.search(patron_importe_total, texto_completo)
+            importe_total = resultado_importe_total.group(1) if resultado_importe_total else "No encontrado"
+
+            # Buscar el monto de la detracción
+            patron_detraccion = r"Monto detracción:\s*S/\s*(.*)\n"
+            resultado_detraccion = re.search(patron_detraccion, texto_completo)
+            detraccion = resultado_detraccion.group(1) if resultado_detraccion else "0"
+
+            # Buscar el monto neto a cobrar
+            patron_neto_cobrar = r"Monto neto pendiente de pago\s*:\s*\$(.*)\n"
+            resultado_neto_cobrar = re.search(patron_neto_cobrar, texto_completo)
+            neto_cobrar = resultado_neto_cobrar.group(1) if resultado_neto_cobrar else "No encontrado"
+
+            # Buscar el total de cuotas
+            patron_total_cuotas = r"Total de Cuotas\s*:\s*(\d+)"
+            resultado_total_cuotas = re.search(patron_total_cuotas, texto_completo)
+            total_cuotas = resultado_total_cuotas.group(1) if resultado_total_cuotas else "No encontrado"
+
+            # Buscar la fecha de vencimiento de la cuota
+            patron_fecha_vencimiento = r"Fec. Venc.\s*Monto\n\d+\s*(\d{2}/\d{2}/\d{4})"
+            resultado_fecha_vencimiento = re.search(patron_fecha_vencimiento, texto_completo)
+            fecha_vencimiento = resultado_fecha_vencimiento.group(1) if resultado_fecha_vencimiento else "No encontrado"
+         
+         
+         
+            # Convertir fecha de emisión y fecha de vencimiento al formato correcto
+            fecha_emision_format = datetime.strptime(fecha_emision, '%d/%m/%Y').strftime('%Y-%m-%d')
+            fecha_vencimiento_format = datetime.strptime(fecha_vencimiento, '%d/%m/%Y').strftime('%Y-%m-%d')
+
+
+            # Luego, creas una instancia de tu modelo con los datos extraídos
+            factura = FacturaElectronica(
+                orden_venta=orden_venta,
+                serie_correlativo=serie_correlativo,
+                fecha_emision=fecha_emision_format,
+                cliente=cliente,
+                ruc_cliente=ruc_cliente,
+                tipo_moneda=tipo_moneda,
+                descripcion=descripcion,
+                importe_total=Decimal(importe_total.replace(',', '')),
+                detraccion=Decimal(detraccion.replace(',', '')),
+                monto_neto_cobrar=Decimal(neto_cobrar.replace(',', '')),
+                total_cuotas=int(total_cuotas),
+                fecha_vencimiento=fecha_vencimiento_format,
+            )
+            factura.save()
+            
+            # Redirigir o mostrar un mensaje de éxito
+            return redirect(reverse('ver_facturas_por_ordenventa', args=[ordenventa_id])) # Asegúrate de definir esta URL
+    
+    return render(request, 'cobros/upload_pdf_cobros.html')
 
 
 

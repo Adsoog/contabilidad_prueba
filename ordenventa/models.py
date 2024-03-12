@@ -145,3 +145,37 @@ class CobrosOrdenVenta(models.Model):
 
     def __str__(self):
         return f"{self.serie_correlativo} - {self.cliente_factura}"
+
+
+## nevo model de factura
+class FacturaElectronica(models.Model):
+    TIPO_COBRO_CHOICES = [
+        ('factoring', 'Factoring'),
+        ('directo', 'Directo'),
+    ]
+    orden_venta = models.ForeignKey(OrdenVenta, on_delete=models.CASCADE, verbose_name="Orden de Venta")
+    serie_correlativo = models.CharField(max_length=100, verbose_name="Serie y Correlativo")
+    fecha_emision = models.DateField(verbose_name="Fecha de Emisión")
+    cliente = models.CharField(max_length=255, verbose_name="Cliente")
+    ruc_cliente = models.CharField(max_length=11, verbose_name="RUC Cliente")
+    tipo_moneda = models.CharField(max_length=20, verbose_name="Tipo de Moneda")
+    descripcion = models.TextField(verbose_name="Descripción")
+    importe_total = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Importe Total")
+    detraccion = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Detracción")
+    monto_neto_cobrar = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Monto Neto a Cobrar")
+    total_cuotas = models.IntegerField(verbose_name="Total de Cuotas")
+    fecha_vencimiento = models.DateField(verbose_name="Fecha de Vencimiento")
+    tipo_cobro = models.CharField(max_length=20, choices=TIPO_COBRO_CHOICES, verbose_name="Tipo de Cobro", null=True, blank=True)
+    desc_factoring = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Descuento Factoring (%)", null=True, blank=True)
+    extracto_banco = models.ForeignKey('extractos.ExtractosBancarios', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Extracto Bancario")
+
+    def save(self, *args, **kwargs):
+        # Si existe un descuento de factoring, ajusta el monto_neto_cobrar
+        if self.desc_factoring and self.monto_neto_cobrar:
+            descuento = (self.desc_factoring / 100) * self.monto_neto_cobrar
+            self.monto_neto_cobrar -= descuento
+
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return f"{self.serie_correlativo} - {self.cliente}"
