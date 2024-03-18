@@ -6,12 +6,18 @@
 <style>
   body {
       font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      height: 100vh;
+      min-height: 100vh; /* Cambiado de height a min-height */
+      padding-top: 20px; /* Agregar un padding superior para evitar que el contenido toque el borde superior */
+      margin: 0; /* Asegurar que no hay márgenes externos en el body */
+      display: block; /* Cambiado de flex a block si no es necesario un diseño flex aquí */
   }
+
+  .container {
+      max-width: 1180px; /* Ajustar según sea necesario */
+      margin: auto; /* Centrar el contenedor en la página */
+      padding: 0px;
+  }
+
 
   .calendario {
       display: grid;
@@ -109,6 +115,9 @@
         </a>
         <a href="{% url 'lista_resoluciones' %}" class="btn btn-outline-primary mb-2 btn-lg">
           <i class="bi bi-calendar-event"></i> Cronogramas Sunat
+        </a>
+        <a href="{% url 'cronograma_semaforo' %}" class="btn btn-outline-primary mb-2 btn-lg">
+          <i class="bi bi-calendar-event"></i> Cronogramas Semaforo
         </a>
 
         

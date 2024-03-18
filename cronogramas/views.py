@@ -1,31 +1,25 @@
-import datetime
-from datetime import datetime
 from decimal import Decimal
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse, JsonResponse
 from django.views.generic.list import ListView
-from django.views.decorators.http import require_http_methods
+from django.views.decorators.http import require_http_methods, require_POST
+from django.urls import reverse
+from django.utils.dateparse import parse_date
 from .forms import (
     EditarFechaPagoForm,
     EditarMontoForm,
     CambiarPDFPagoForm,
     PDFUploadForm,
     PagoForm,
+    CronogramaForm,
 )
-from .models import DetallePago, PagoCronograma, Resolucion
-from cronogramas.models import Cronograma, PagoCronograma
-from .forms import CronogramaForm  # Importa el formulario de Cronograma
-from django.urls import reverse
+from .models import DetallePago, PagoCronograma, Resolucion, Pago
+from cronogramas.models import Cronograma
+from django.utils import timezone
+
 import pdfplumber
 import re
-from django.utils.dateparse import parse_date
-from django.shortcuts import render, redirect
-from .forms import PDFUploadForm
-from .models import Resolucion, Pago
-import pdfplumber
-from django.contrib import messages
-from django.views.decorators.http import require_POST
-
+from datetime import date, datetime, timedelta
 
 def crear_cronograma(request):
     if request.method == "POST":
@@ -263,3 +257,28 @@ def cambiar_pdf_pago_sunat(request, pk):
             )
     # Manejar caso de error o solicitud no POST
     return HttpResponse("Operación no permitida", status=405)
+
+
+#### CRONOGRAMA SEMAFORO
+from datetime import date, timedelta
+
+def cronograma_semaforo(request):
+    pagos = Pago.objects.filter(vencimiento__gte=date.today()).order_by('vencimiento')
+    hoy = date.today()
+    proximo = hoy + timedelta(days=30)  # Ajusta este valor según tus necesidades
+
+    # Obtener la fecha y hora actuales en la zona horaria definida en settings.py
+    ahora = timezone.localtime(timezone.now())
+
+    for pago in pagos:
+        if pago.vencimiento < hoy:
+            pago.estado_clase = 'table-danger'  # Pago vencido
+        elif pago.vencimiento <= proximo:
+            pago.estado_clase = 'table-warning'  # Próximo vencimiento
+        else:
+            pago.estado_clase = 'table-success'  # Vencimiento más lejano
+
+    return render(request, 'semaforo.html', {
+        'pagos': pagos,
+        'ahora': ahora,  # Pasar la fecha y hora actuales al contexto
+    })

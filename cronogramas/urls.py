@@ -4,6 +4,7 @@ from .views import (
     cambiar_pdf_pago_sunat,
     cargar_pdf,
     crear_cronograma,
+    cronograma_semaforo,
     detalle_resolucion,
     eliminar_resolucion,
     ver_cronogramas_filtrados,
@@ -53,4 +54,7 @@ urlpatterns = [
         cambiar_pdf_pago_sunat,
         name="cambiar_pdf_pago_sunat",
     ),
+    # cronograma semaforo:
+    path('cronograma-semaforo/', cronograma_semaforo, name='cronograma_semaforo'),
+    
 ]
