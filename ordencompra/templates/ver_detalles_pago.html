@@ -1,44 +1,93 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Actualizar Pagos</h2>
-<table class="table mt-4">
-    <thead>
-        <tr>
-            <th>Descripción del Artículo</th>
-            <th>Fecha de Pago</th>
-            <th>Monto Pagado</th>
-            <th>Fecha Pagada</th>
-            <th>Comprobante de Pago</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for orden in ordenes_de_pago %}
-        <tr>
-            <form hx-post="{% url 'actualizar_pago' orden.id %}" enctype="multipart/form-data">
+<h2>Actualizar Pagos: {{ ordenventa.observacion }}</h2>
+
+<form action="" method="post" enctype="multipart/form-data">
+    {% csrf_token %} <!-- Asegúrate de incluir el token CSRF para la protección -->
+    <table class="table mt-4">
+        <thead>
+            <tr>
+                <th>Proveedor</th>
+                <th>Descripción</th>
+                <th>F. Pago</th>
+                <th>F. Pagada</th>
+                <th>Monto Pagado</th>
+                <th>Nro Movimiento</th>
+                <th>Banco</th>
+                <th>Comprobante</th>
+                <th>ACT</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for orden in ordenes_de_pago %}
+            <tr>
+                <td>
+                    {% if orden.proveedor %}
+                        {{ orden.proveedor.nombre_proveedor }}
+                    {% else %}
+                        Proveedor no asignado
+                    {% endif %}
+                </td>
                 <td>{{ orden.desc_articulo }}</td>
                 <td>{{ orden.fecha_pago|date:"Y-m-d" }}</td>
+                <td>
+                    <input type="date" name="fecha_pagada" value="{{ orden.fecha_pagada|date:'Y-m-d' }}" class="form-control">
+                </td> 
                 <td>
                     <input type="text" name="monto_pagado" value="{{ orden.monto_pagado }}" placeholder="Monto Pagado" class="form-control">
                 </td>
                 <td>
-                    <input type="date" name="fecha_pagada" value="{{ orden.fecha_pagada|date:'Y-m-d' }}" class="form-control">
+                    <input type="text" name="numero_movimiento_bancario" value="{{ orden.numero_movimiento_bancario }}" placeholder="Número de Movimiento Bancario" class="form-control">
                 </td>
                 <td>
+                    <select name="banco_relacionado" class="form-control">
+                        <option value="BBVA CORRIENTE">BBVA CORRIENTE</option>
+                        <option value="BBVA AHORRO">BBVA AHORRO</option>
+                        <option value="BBVA DOLAR">BBVA DOLAR</option>
+                        <option value="BCP SOLES">BCP SOLES</option>
+                        <option value="BCP DOLAR">BCP DOLAR</option>
+                    </select>
+                </td>
+                <td style="text-align: center;">
                     {% if orden.comprobante_pago %}
-                    <a href="{{ orden.comprobante_pago.url }}" target="_blank">Ver Comprobante</a>
+                        <a href="{{ orden.comprobante_pago.url }}" target="_blank" style="display: inline-block; margin-right: 10px;"><i class="fas fa-file-alt fa-2x"></i></a>
                     {% else %}
-                    Sin Comprobante
+                        <i class="fas fa-times-circle fa-2x" style="margin-right: 10px;"></i>
                     {% endif %}
-                    <input type="file" name="comprobante_pago" accept=".pdf" class="form-control">
+                    <label for="comprobante_pago_{{ orden.id }}" style="display: inline-block; cursor: pointer;"><i class="fas fa-paperclip fa-2x"></i></label>
+                    <input type="file" name="comprobante_pago" id="comprobante_pago_{{ orden.id }}" accept=".pdf" class="form-control" style="display:none;">
+                    <span id="file_name_{{ orden.id }}" style="margin-left: 10px;"></span>
                 </td>
+                
                 <td>
-                    <button type="submit" class="btn btn-primary">Actualizar</button>
+                    <button type="submit" formaction="{% url 'actualizar_pago' orden.id %}" class="btn btn-primary"><i class="fas fa-sync-alt"></i></button>
                 </td>
-            </form>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</form>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Encuentra todos los inputs de tipo archivo
+        var fileInputs = document.querySelectorAll('input[type="file"]');
+
+        // Añade un event listener a cada input
+        fileInputs.forEach(function(input) {
+            input.addEventListener('change', function(event) {
+                var fileName = event.target.files[0].name;
+                var fileId = event.target.id;
+                // Actualiza el contenido del span correspondiente con el nombre del archivo
+                document.querySelector('span[id="file_name_' + fileId.replace('comprobante_pago_', '') + '"]').textContent = fileName;
+            });
+        });
+    });
+</script>
+
 {% endblock %}
+
+
+
+
+  

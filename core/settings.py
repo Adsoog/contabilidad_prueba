@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_bootstrap5',
     "corsheaders",  # Añade django-cors-headers aquí
-    "extractos",    
+    "extractos",
+    "django_htmx"
 ]
 
 MIDDLEWARE = [
